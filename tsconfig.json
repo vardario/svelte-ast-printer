@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "lib",
+    "incremental": true,
+    "lib": ["ES2022"],
+    "moduleResolution": "node",
+    "module": "ES2022",
+    "target": "ES2022",
+    "strict": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "experimentalDecorators": true,
+    "declaration": true
+  },
+  "include": ["src/**/*"]
+}

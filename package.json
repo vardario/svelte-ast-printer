@@ -1,0 +1,48 @@
+{
+  "name": "@vardario/svelte-ast-printer",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "author": "Sahin Vardar",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:vardario/svelte-ast-printer.git"
+  },
+  "type": "module",
+  "main": "lib/index.js",  
+  "files": [
+    "/lib",
+    "!/**/*.map",
+    "!/**/*.test.*"
+  ],
+  "scripts": {
+    "build": "tsc --build",
+    "format": "prettier --plugin-search-dir . --write . && prettier-package-json --write",
+    "preinstall": "npx only-allow pnpm",
+    "test": "vitest run",
+    "watch": "tsc --watch"
+  },
+  "dependencies": {
+    "astring": "^1.8.5",
+    "commander": "^10.0.1",
+    "lodash": "^4.17.21",
+    "svelte": "^3.59.1"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.195",
+    "@types/node": "^20.2.5",
+    "husky": "^8.0.3",
+    "lint-staged": "^13.2.2",
+    "prettier": "^2.8.8",
+    "prettier-package-json": "^2.8.0",
+    "prettier-plugin-organize-imports": "^3.2.2",
+    "typescript": "^5.0.4",
+    "vitest": "^0.31.1"
+  },
+  "keywords": [],
+  "lint-staged": {
+    "*": "prettier --write --ignore-unknown",
+    "package.json": "prettier-package-json --write"
+  },
+  "packageManager": "pnpm@8.5.1"
+}
