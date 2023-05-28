@@ -1,6 +1,6 @@
 import { generate } from 'astring';
 import { Script } from 'svelte/types/compiler/interfaces';
-import { DefaultPrinterIdentOptions, PrinterIdentOptions } from '.';
+import { DefaultPrinterIdentOptions, PrinterIdentOptions } from './index.js';
 
 export interface PrintScriptParams {
   script: Script;
