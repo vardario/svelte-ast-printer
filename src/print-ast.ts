@@ -1,5 +1,5 @@
 import { Ast } from 'svelte/types/compiler/interfaces';
-import { DefaultPrinterIdentOptions, PrinterIdentOptions, printHtml, printScript } from '.';
+import { DefaultPrinterIdentOptions, PrinterIdentOptions, printHtml, printScript } from './index.js';
 
 export interface PrintAstParams {
   ast: Ast;
