@@ -139,6 +139,11 @@ test('{#await}', () => {
     '{#await promise catch error}<p>The error is {error}</p>{/await}',
     '{#await promise}{:then}{:catch error}<p>The error is {error}</p>{/await}'
   );
+
+  testHtmlPrinter(
+    '{#await item.promise then value}<p>{value}</p>{/await}',
+    '{#await item.promise}{:then value}<p>{value}</p>{:catch}{/await}'
+  );
 });
 
 test('{#key ...}', () => {

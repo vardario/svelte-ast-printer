@@ -302,6 +302,10 @@ class AwaitBlockPrinter extends BaseHtmlNodePrinter {
   enter(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {
     const { write } = context;
     write(`{#await ${generate(node.expression, context.indent)}}`);
+    context._this.replace({
+      ...node,
+      expression: undefined
+    });
   }
   leave(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {
     const { write } = context;
