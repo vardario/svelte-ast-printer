@@ -127,22 +127,22 @@ test('{#await}', () => {
   );
   testHtmlPrinter(
     '{#await promise}<p>waiting for the promise to resolve...</p>{:then value}<p>The value is {value}</p>{/await}',
-    '{#await promise}<p>waiting for the promise to resolve...</p>{:then value}<p>The value is {value}</p>{:catch}{/await}'
+    '{#await promise}<p>waiting for the promise to resolve...</p>{:then value}<p>The value is {value}</p>{/await}'
   );
 
   testHtmlPrinter(
     '{#await promise then value}<p>The value is {value}</p>{/await}',
-    '{#await promise}{:then value}<p>The value is {value}</p>{:catch}{/await}'
+    '{#await promise}{:then value}<p>The value is {value}</p>{/await}'
   );
 
   testHtmlPrinter(
     '{#await promise catch error}<p>The error is {error}</p>{/await}',
-    '{#await promise}{:then}{:catch error}<p>The error is {error}</p>{/await}'
+    '{#await promise}{:catch error}<p>The error is {error}</p>{/await}'
   );
 
   testHtmlPrinter(
     '{#await item.promise then value}<p>{value}</p>{/await}',
-    '{#await item.promise}{:then value}<p>{value}</p>{:catch}{/await}'
+    '{#await item.promise}{:then value}<p>{value}</p>{/await}'
   );
 });
 

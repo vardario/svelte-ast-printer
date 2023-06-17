@@ -463,6 +463,9 @@ export default function printHtml(params: PrintHtmlParams) {
 
   walk(_.cloneDeep(params.rootNode), {
     enter: function (node: TemplateNode, parent: TemplateNode) {
+      if(node.skip === true){
+        return
+      }
       const printer = printers[node.type];
       if (printer === undefined) {
         throw new Error(`Could not find printer for ${node.type}`);
@@ -477,6 +480,10 @@ export default function printHtml(params: PrintHtmlParams) {
       nestingLevel++;
     },
     leave: function (node: TemplateNode, parent: TemplateNode) {
+      if(node.skip === true){
+        return
+      }
+      
       const printer = printers[node.type];
 
       printer.leave(node, parent, {
