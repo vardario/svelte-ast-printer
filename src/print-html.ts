@@ -59,7 +59,7 @@ class ElementPrinter extends BaseHtmlNodePrinter {
     const attributes =
       elementNode.attributes
         ?.map(attribute => {
-          let attributeName = '';         
+          let attributeName = '';
 
           switch (attribute.type) {
             case 'EventHandler':
@@ -76,7 +76,7 @@ class ElementPrinter extends BaseHtmlNodePrinter {
               break;
             case 'Action':
               attributeName = 'use:';
-              break;            
+              break;
             case 'Transition':
               if (attribute.intro === attribute.outro) {
                 attributeName = 'transition:';
@@ -92,8 +92,8 @@ class ElementPrinter extends BaseHtmlNodePrinter {
               break;
 
             case 'Let':
-                attributeName = 'let:';
-                break;
+              attributeName = 'let:';
+              break;
           }
 
           attributeName += attribute.name;
@@ -467,8 +467,8 @@ export default function printHtml(params: PrintHtmlParams) {
 
   walk(_.cloneDeep(params.rootNode), {
     enter: function (node: TemplateNode, parent: TemplateNode) {
-      if(node.skip === true){
-        return
+      if (node.skip === true) {
+        return;
       }
       const printer = printers[node.type];
       if (printer === undefined) {
@@ -484,10 +484,10 @@ export default function printHtml(params: PrintHtmlParams) {
       nestingLevel++;
     },
     leave: function (node: TemplateNode, parent: TemplateNode) {
-      if(node.skip === true){
-        return
+      if (node.skip === true) {
+        return;
       }
-      
+
       const printer = printers[node.type];
 
       printer.leave(node, parent, {
