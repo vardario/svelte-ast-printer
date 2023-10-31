@@ -59,7 +59,7 @@ class ElementPrinter extends BaseHtmlNodePrinter {
     const attributes =
       elementNode.attributes
         ?.map(attribute => {
-          let attributeName = '';
+          let attributeName = '';         
 
           switch (attribute.type) {
             case 'EventHandler':
@@ -76,7 +76,7 @@ class ElementPrinter extends BaseHtmlNodePrinter {
               break;
             case 'Action':
               attributeName = 'use:';
-              break;
+              break;            
             case 'Transition':
               if (attribute.intro === attribute.outro) {
                 attributeName = 'transition:';
@@ -90,6 +90,10 @@ class ElementPrinter extends BaseHtmlNodePrinter {
             case 'Animation':
               attributeName = 'animate:';
               break;
+
+            case 'Let':
+                attributeName = 'let:';
+                break;
           }
 
           attributeName += attribute.name;

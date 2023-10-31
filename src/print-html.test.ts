@@ -79,6 +79,10 @@ describe('Element directives', () => {
     testHtmlPrinter('<li animate:flip={{delay: 500}}>{item}</li>');
     testHtmlPrinter('<div animate:whizz>{item}</div>');
   });
+
+  test('let:variable', () => {
+    testHtmlPrinter('<checkbox let:isChecked/>');    
+  });
 });
 
 describe('Template', () => {
