@@ -301,7 +301,7 @@ class EachBlockPrinter extends BaseHtmlNodePrinter {
 class AwaitBlockPrinter extends BaseHtmlNodePrinter {
   enter(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {
     const { write } = context;
-    write(`{#await ${generate(node.expression, context.indent)}}`);
+    write(`{#await ${generate(node.expression, context.indent)}${node.pending.skip === false ? '}' : ''}`);
     context._this.replace({
       ...node,
       expression: undefined
@@ -321,7 +321,12 @@ class PendingBlockPrinter extends BaseHtmlNodePrinter {
 class ThenBlockPrinter extends BaseHtmlNodePrinter {
   enter(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {
     const { write } = context;
-    write('{:then');
+    if (parent.pending.skip === true) {
+      write(' then');
+    } else {
+      write('{:then');
+    }
+
     if (parent.value) {
       write(` ${generate(parent.value, context.indent)}`);
     }
@@ -333,7 +338,12 @@ class ThenBlockPrinter extends BaseHtmlNodePrinter {
 class CatchBlockPrinter extends BaseHtmlNodePrinter {
   enter(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {
     const { write } = context;
-    write('{:catch');
+    if (parent.pending.skip === true) {
+      write(' catch');
+    } else {
+      write('{:catch');
+    }
+
     if (parent.error) {
       write(` ${generate(parent.error, context.indent)}`);
     }
@@ -463,8 +473,8 @@ export default function printHtml(params: PrintHtmlParams) {
 
   walk(_.cloneDeep(params.rootNode), {
     enter: function (node: TemplateNode, parent: TemplateNode) {
-      if(node.skip === true){
-        return
+      if (node.skip === true) {
+        return;
       }
       const printer = printers[node.type];
       if (printer === undefined) {
@@ -480,10 +490,10 @@ export default function printHtml(params: PrintHtmlParams) {
       nestingLevel++;
     },
     leave: function (node: TemplateNode, parent: TemplateNode) {
-      if(node.skip === true){
-        return
+      if (node.skip === true) {
+        return;
       }
-      
+
       const printer = printers[node.type];
 
       printer.leave(node, parent, {
