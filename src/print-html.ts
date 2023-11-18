@@ -305,7 +305,7 @@ class EachBlockPrinter extends BaseHtmlNodePrinter {
 class AwaitBlockPrinter extends BaseHtmlNodePrinter {
   enter(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {
     const { write } = context;
-    write(`{#await ${generate(node.expression, context.indent)}}`);
+    write(`{#await ${generate(node.expression, context.indent)}${node.pending.skip === false ? '}' : ''}`);
     context._this.replace({
       ...node,
       expression: undefined
@@ -325,7 +325,12 @@ class PendingBlockPrinter extends BaseHtmlNodePrinter {
 class ThenBlockPrinter extends BaseHtmlNodePrinter {
   enter(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {
     const { write } = context;
-    write('{:then');
+    if (parent.pending.skip === true) {
+      write(' then');
+    } else {
+      write('{:then');
+    }
+
     if (parent.value) {
       write(` ${generate(parent.value, context.indent)}`);
     }
@@ -337,7 +342,12 @@ class ThenBlockPrinter extends BaseHtmlNodePrinter {
 class CatchBlockPrinter extends BaseHtmlNodePrinter {
   enter(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {
     const { write } = context;
-    write('{:catch');
+    if (parent.pending.skip === true) {
+      write(' catch');
+    } else {
+      write('{:catch');
+    }
+
     if (parent.error) {
       write(` ${generate(parent.error, context.indent)}`);
     }
