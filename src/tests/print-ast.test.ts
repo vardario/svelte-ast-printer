@@ -1,6 +1,6 @@
 import { parse } from 'svelte/compiler';
 import { describe, expect, test } from 'vitest';
-import printAst from './print-ast';
+import printAst from '../print-ast';
 
 function testPrintAst(code: string, expectedResult?: string) {
   const ast = parse(code);
@@ -10,9 +10,9 @@ function testPrintAst(code: string, expectedResult?: string) {
       indent: '',
       lineEnd: ''
     }
-  });  
+  });
   expect(result).toBe(expectedResult ?? code);
-  parse(result);  
+  parse(result);
 }
 
 describe('print-ast', () => {

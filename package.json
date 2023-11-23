@@ -1,7 +1,7 @@
 {
   "name": "@vardario/svelte-ast-printer",
-  "version": "0.1.7",
-  "description": "",
+  "version": "0.0.0-development",
+  "description": "This library converts a svelte ast to a string.",
   "license": "MIT",
   "author": "Sahin Vardar",
   "repository": {
@@ -9,33 +9,43 @@
     "url": "git@github.com:vardario/svelte-ast-printer.git"
   },
   "type": "module",
-  "main": "lib/index.js",  
+  "main": "lib/index.js",
   "files": [
-    "/lib",
-    "!/**/*.map",
-    "!/**/*.test.*"
+    "lib"
   ],
   "scripts": {
     "build": "tsc --build",
     "format": "prettier --plugin-search-dir . --write . && prettier-package-json --write",
     "preinstall": "npx only-allow pnpm",
+    "semantic-release": "semantic-release",
     "test": "vitest run",
     "watch": "tsc --watch"
   },
   "dependencies": {
-    "astring": "^1.8.5",
-    "commander": "^10.0.1",
-    "lodash": "^4.17.21",
-    "svelte": "^3.59.1"
+    "commander": "^10.0.1"
+  },
+  "peerDependencies": {
+    "astring": "1.x",
+    "lodash": "4.x",
+    "svelte": "4.x"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.195",
     "@types/node": "^20.2.5",
+    "@typescript-eslint/eslint-plugin": "^6.11.0",
+    "@typescript-eslint/parser": "^6.11.0",
+    "astring": "^1.8.5",
+    "eslint": "^8.54.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-unused-imports": "^3.0.0",
     "husky": "^8.0.3",
-    "lint-staged": "^13.2.2",
-    "prettier": "^2.8.8",
+    "lint-staged": "^15.1.0",
+    "lodash": "^4.17.21",
+    "prettier": "^3.1.0",
     "prettier-package-json": "^2.8.0",
     "prettier-plugin-organize-imports": "^3.2.2",
+    "semantic-release": "^22.0.8",
+    "svelte": "^4.2.7",
     "typescript": "^5.0.4",
     "vitest": "^0.31.1"
   },
@@ -44,5 +54,5 @@
     "*": "prettier --write --ignore-unknown",
     "package.json": "prettier-package-json --write"
   },
-  "packageManager": "pnpm@8.6.0"
+  "packageManager": "pnpm@8.10.5"
 }

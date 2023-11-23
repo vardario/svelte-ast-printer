@@ -475,8 +475,8 @@ export default function printHtml(params: PrintHtmlParams) {
 
   let nestingLevel = 0;
 
-  walk(_.cloneDeep(params.rootNode), {
-    enter: function (node: TemplateNode, parent: TemplateNode) {
+  walk(_.cloneDeep(params.rootNode as any), {
+    enter: function (node: any, parent: any) {
       if (node.skip === true) {
         return;
       }
@@ -493,7 +493,7 @@ export default function printHtml(params: PrintHtmlParams) {
 
       nestingLevel++;
     },
-    leave: function (node: TemplateNode, parent: TemplateNode) {
+    leave: function (node: any, parent: any) {
       if (node.skip === true) {
         return;
       }
