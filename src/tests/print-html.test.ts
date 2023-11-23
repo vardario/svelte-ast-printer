@@ -1,6 +1,6 @@
 import { parse } from 'svelte/compiler';
 import { describe, expect, test } from 'vitest';
-import printHtml from './print-html';
+import printHtml from '../print-html';
 
 function testHtmlPrinter(code: string, expectedResult?: string) {
   const ast = parse(code);
@@ -81,7 +81,7 @@ describe('Element directives', () => {
   });
 
   test('let:variable', () => {
-    testHtmlPrinter('<checkbox let:isChecked/>');    
+    testHtmlPrinter('<checkbox let:isChecked/>');
   });
 });
 
