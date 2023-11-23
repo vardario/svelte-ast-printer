@@ -28,8 +28,8 @@ export abstract class BaseHtmlNodePrinter {
 }
 
 class FragmentPrinter extends BaseHtmlNodePrinter {
-  enter(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {}
-  leave(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {}
+  enter(_: TemplateNode, __: TemplateNode, ___: PrinterContext) {}
+  leave(_: TemplateNode, __: TemplateNode, ___: PrinterContext) {}
 }
 
 class ElementPrinter extends BaseHtmlNodePrinter {
@@ -179,7 +179,7 @@ class AttributePrinter extends BaseHtmlNodePrinter {
   enter(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {
     context._this.skip();
   }
-  leave(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {}
+  leave(_: TemplateNode, __: TemplateNode, ___: PrinterContext) {}
 }
 
 class TextPrinter extends BaseHtmlNodePrinter {
@@ -189,14 +189,14 @@ class TextPrinter extends BaseHtmlNodePrinter {
     const textNode = node as Text;
     write(textNode.data);
   }
-  leave(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {}
+  leave(_: TemplateNode, __: TemplateNode, ___: PrinterContext) {}
 }
 
 class NoOpPrinter extends BaseHtmlNodePrinter {
   enter(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {
     context._this.skip();
   }
-  leave(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {}
+  leave(_: TemplateNode, __: TemplateNode, ___: PrinterContext) {}
 }
 
 class MustacheTagPrinter extends BaseHtmlNodePrinter {
@@ -209,7 +209,7 @@ class MustacheTagPrinter extends BaseHtmlNodePrinter {
       expression: undefined
     });
   }
-  leave(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {}
+  leave(_: TemplateNode, __: TemplateNode, ___: PrinterContext) {}
 }
 
 class CommentPrinter extends BaseHtmlNodePrinter {
@@ -224,7 +224,7 @@ class CommentPrinter extends BaseHtmlNodePrinter {
       write(context.indent.lineEnd);
     }
   }
-  leave(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {}
+  leave(_: TemplateNode, __: TemplateNode, ___: PrinterContext) {}
 }
 
 class IfBlockPrinter extends BaseHtmlNodePrinter {
@@ -266,7 +266,7 @@ class ElseBlockPrinter extends BaseHtmlNodePrinter {
       write('{:else}');
     }
   }
-  leave(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {}
+  leave(_: TemplateNode, __: TemplateNode, ___: PrinterContext) {}
 }
 
 class EachBlockPrinter extends BaseHtmlNodePrinter {
@@ -318,8 +318,8 @@ class AwaitBlockPrinter extends BaseHtmlNodePrinter {
 }
 
 class PendingBlockPrinter extends BaseHtmlNodePrinter {
-  enter(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {}
-  leave(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {}
+  enter(_: TemplateNode, __: TemplateNode, ___: PrinterContext) {}
+  leave(_: TemplateNode, __: TemplateNode, ___: PrinterContext) {}
 }
 
 class ThenBlockPrinter extends BaseHtmlNodePrinter {
@@ -336,7 +336,7 @@ class ThenBlockPrinter extends BaseHtmlNodePrinter {
     }
     write('}');
   }
-  leave(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {}
+  leave(_: TemplateNode, __: TemplateNode, ___: PrinterContext) {}
 }
 
 class CatchBlockPrinter extends BaseHtmlNodePrinter {
@@ -353,7 +353,7 @@ class CatchBlockPrinter extends BaseHtmlNodePrinter {
     }
     write('}');
   }
-  leave(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {}
+  leave(_: TemplateNode, __: TemplateNode, ___: PrinterContext) {}
 }
 
 class KeyBlockPrinter extends BaseHtmlNodePrinter {
@@ -376,9 +376,7 @@ class RawMustacheTagPrinter extends BaseHtmlNodePrinter {
       expression: undefined
     });
   }
-  leave(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {
-    const { write } = context;
-  }
+  leave(_: TemplateNode, __: TemplateNode, ___: PrinterContext) {}
 }
 
 class DebugTagPrinter extends BaseHtmlNodePrinter {
@@ -386,9 +384,7 @@ class DebugTagPrinter extends BaseHtmlNodePrinter {
     const { write } = context;
     write(`{@debug ${node.identifiers.map((id: any) => generate(id, context.indent)).join(', ')}}`);
   }
-  leave(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {
-    const { write } = context;
-  }
+  leave(_: TemplateNode, __: TemplateNode, ___: PrinterContext) {}
 }
 
 class ConstTagPrinter extends BaseHtmlNodePrinter {
@@ -400,9 +396,7 @@ class ConstTagPrinter extends BaseHtmlNodePrinter {
       expression: undefined
     });
   }
-  leave(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {
-    const { write } = context;
-  }
+  leave(_: TemplateNode, __: TemplateNode, ___: PrinterContext) {}
 }
 
 const NoOp = new NoOpPrinter();

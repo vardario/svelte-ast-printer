@@ -19,7 +19,8 @@
     "preinstall": "npx only-allow pnpm",
     "semantic-release": "semantic-release",
     "test": "vitest run",
-    "watch": "tsc --watch"
+    "watch": "tsc --watch",
+    "repo-clean": "git clean -xdf -e .env"
   },
   "dependencies": {
     "commander": "^10.0.1"
