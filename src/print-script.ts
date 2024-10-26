@@ -1,9 +1,9 @@
 import { generate } from 'astring';
-import { Script } from 'svelte/types/compiler/interfaces';
+import type { AST } from 'svelte/src/compiler/types/index.js';
 import { DefaultPrinterIdentOptions, PrinterIdentOptions } from './index.js';
 
 export interface PrintScriptParams {
-  script: Script;
+  script: AST.Script;
   ident?: PrinterIdentOptions;
 }
 

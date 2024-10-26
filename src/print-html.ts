@@ -1,17 +1,17 @@
 import { generate } from 'astring';
 import _ from 'lodash';
 import { walk } from 'estree-walker';
-import {
-  Attribute,
-  Comment,
-  Element,
-  MustacheTag,
-  SpreadAttribute,
-  TemplateNode,
-  Text
-} from 'svelte/types/compiler/interfaces';
-import { DefaultPrinterIdentOptions, PrinterIdentOptions } from './index.js';
+import type { TemplateNode, AST, SvelteNode } from 'svelte/src/compiler/types/template.js';
+import type {
+  BaseElement,
+  LegacyAttribute,
+  LegacyComment,
+  LegacyMustacheTag,
+  LegacySpread,
+  LegacySvelteNode
+} from 'svelte/src/compiler/types/legacy-nodes.js';
 
+import { DefaultPrinterIdentOptions, PrinterIdentOptions } from './index.js';
 export type Write = (text: string) => void;
 
 export interface PrinterContext {
@@ -23,8 +23,16 @@ export interface PrinterContext {
 export abstract class BaseHtmlNodePrinter {
   constructor() {}
 
-  abstract enter(node: TemplateNode, parent: TemplateNode, context: PrinterContext): void;
-  abstract leave(node: TemplateNode, parent: TemplateNode, context: PrinterContext): void;
+  abstract enter(
+    node: SvelteNode | LegacySvelteNode,
+    parent: SvelteNode | LegacySvelteNode,
+    context: PrinterContext
+  ): void;
+  abstract leave(
+    node: SvelteNode | LegacySvelteNode,
+    parent: SvelteNode | LegacySvelteNode,
+    context: PrinterContext
+  ): void;
 }
 
 class FragmentPrinter extends BaseHtmlNodePrinter {
@@ -33,8 +41,8 @@ class FragmentPrinter extends BaseHtmlNodePrinter {
 }
 
 class ElementPrinter extends BaseHtmlNodePrinter {
-  attributeValueToString(attribute: Attribute | SpreadAttribute, context: PrinterContext) {
-    if (attribute.value) {
+  attributeValueToString(attribute: LegacyAttribute | LegacySpread, context: PrinterContext) {
+    if (attribute.type === 'Attribute' && attribute.value !== true) {
       const [value] = attribute.value;
 
       if (value.type === 'Text') {
@@ -46,14 +54,14 @@ class ElementPrinter extends BaseHtmlNodePrinter {
       }
     }
 
-    if (attribute.expression) {
+    if (attribute.type === 'Spread' && attribute.expression) {
       return `{${generate(attribute.expression, context.indent)}}`;
     }
 
     return '';
   }
 
-  private printAttributes(elementNode: Element, context: PrinterContext) {
+  private printAttributes(elementNode: BaseElement, context: PrinterContext) {
     const { write } = context;
 
     const attributes =
@@ -96,61 +104,51 @@ class ElementPrinter extends BaseHtmlNodePrinter {
               break;
           }
 
-          attributeName += attribute.name;
+          if (attribute.type === 'Attribute') {
+            if (attribute.value === true) {
+              return attribute.name;
+            }
 
-          let value: any;
+            const [value] = attribute.value;
+            attributeName += attribute.name;
 
-          if (_.isArray(attribute.value)) {
-            value = attribute.value[0];
-          }
-
-          if (_.isBoolean(attribute.value) && attribute.value === true) {
-            return attributeName;
-          }
-
-          if (value && value.type === 'AttributeShorthand') {
-            return this.attributeValueToString(attribute as Attribute, context);
-          }
-
-          if (attribute?.expression === null) {
-            return attributeName;
+            if (value.type === 'AttributeShorthand') {
+              return this.attributeValueToString(attribute, context);
+            }
+            return `${attributeName}=${this.attributeValueToString(attribute, context)}`;
           }
 
           if (attribute.type === 'Spread') {
             return `{...${generate(attribute.expression, context.indent)}}`;
           }
 
-          if (attribute?.expression) {
-            return `${attributeName}={${generate(attribute.expression, context.indent)}}`;
-          }
-
-          return `${attributeName}=${this.attributeValueToString(attribute as Attribute, context)}`;
+          // if (attribute?.expression) {
+          //   return `${attributeName}={${generate(attribute.expression, context.indent)}}`;
+          // }
         })
         .join(' ') ?? '';
 
-    if (elementNode.expression) {
-      write(` this={${generate(elementNode.expression, context.indent)}}`);
-    }
+    // if (elementNode.expression) {
+    //   write(` this={${generate(elementNode.expression, context.indent)}}`);
+    // }
 
-    if (elementNode.tag) {
-      write(` this={${generate(elementNode.tag, context.indent)}}`);
-    }
+    // if (elementNode.tag) {
+    //   write(` this={${generate(elementNode.tag, context.indent)}}`);
+    // }
 
     write(attributes !== '' ? ` ${attributes}` : '');
   }
 
-  enter(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {
-    const elementNode = node as Element;
+  enter(node: BaseElement, _: any, context: PrinterContext) {
     const { write } = context;
-
-    if (elementNode.children && elementNode.children.length > 0) {
+    if (node.children && node.children.length > 0) {
       write(context.indent.indent);
-      write(`<${elementNode.name}`);
-      this.printAttributes(elementNode, context);
+      write(`<${node.name}`);
+      this.printAttributes(node, context);
       write('>');
     } else {
-      write(`<${elementNode.name}`);
-      this.printAttributes(elementNode, context);
+      write(`<${node.name}`);
+      this.printAttributes(node, context);
       write('/>');
     }
 
@@ -163,13 +161,11 @@ class ElementPrinter extends BaseHtmlNodePrinter {
 
     write(context.indent.lineEnd);
   }
-  leave(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {
-    const element = node as Element;
-
+  leave(node: BaseElement, _: any, context: PrinterContext) {
     const { write } = context;
 
-    if (element.children && element.children.length > 0) {
-      write(`</${element.name}>`);
+    if (node.children && node.children.length > 0) {
+      write(`</${node.name}>`);
       write(context.indent.lineEnd);
     }
   }
@@ -183,11 +179,9 @@ class AttributePrinter extends BaseHtmlNodePrinter {
 }
 
 class TextPrinter extends BaseHtmlNodePrinter {
-  enter(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {
+  enter(node: AST.Text, _: any, context: PrinterContext) {
     const { write } = context;
-
-    const textNode = node as Text;
-    write(textNode.data);
+    write(node.data);
   }
   leave(_: TemplateNode, __: TemplateNode, ___: PrinterContext) {}
 }
@@ -200,9 +194,8 @@ class NoOpPrinter extends BaseHtmlNodePrinter {
 }
 
 class MustacheTagPrinter extends BaseHtmlNodePrinter {
-  enter(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {
-    const mustacheTagNode = node as MustacheTag;
-    context.write(`{${generate(mustacheTagNode.expression, context.indent)}}`);
+  enter(node: LegacyMustacheTag, _: any, context: PrinterContext) {
+    context.write(`{${generate(node.expression, context.indent)}}`);
 
     context._this.replace({
       ...node,
@@ -213,11 +206,10 @@ class MustacheTagPrinter extends BaseHtmlNodePrinter {
 }
 
 class CommentPrinter extends BaseHtmlNodePrinter {
-  enter(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {
+  enter(node: LegacyComment, __: any, context: PrinterContext) {
     const { write } = context;
 
-    const commentNode = node as Comment;
-    const comment = _.trim(commentNode.data);
+    const comment = _.trim(node.data);
 
     if (comment !== '') {
       write(`<!-- ${comment} -->`);
@@ -404,40 +396,45 @@ const NoOp = new NoOpPrinter();
 export type PrinterCollection = Record<string, BaseHtmlNodePrinter>;
 
 const PRINTERS: PrinterCollection = {
+  Fragment: new FragmentPrinter(),
   Element: new ElementPrinter(),
   InlineComponent: new ElementPrinter(),
-  SlotTemplate: new ElementPrinter(),
-  Title: new ElementPrinter(),
-  Slot: new ElementPrinter(),
-  Head: new ElementPrinter(),
-  Options: new ElementPrinter(),
-  Window: new ElementPrinter(),
-  Document: new ElementPrinter(),
-  Body: new ElementPrinter(),
-  MustacheTag: new MustacheTagPrinter(),
-  Attribute: new AttributePrinter(),
-  Fragment: new FragmentPrinter(),
   Text: new TextPrinter(),
-  EventHandler: NoOp,
-  Identifier: NoOp,
-  Binding: NoOp,
-  Class: NoOp,
-  StyleDirective: NoOp,
-  Action: NoOp,
-  Transition: NoOp,
-  Animation: NoOp,
+  MustacheTag: new MustacheTagPrinter(),
   Comment: new CommentPrinter(),
-  IfBlock: new IfBlockPrinter(),
-  ElseBlock: new ElseBlockPrinter(),
-  EachBlock: new EachBlockPrinter(),
-  AwaitBlock: new AwaitBlockPrinter(),
-  PendingBlock: new PendingBlockPrinter(),
-  ThenBlock: new ThenBlockPrinter(),
-  CatchBlock: new CatchBlockPrinter(),
-  KeyBlock: new KeyBlockPrinter(),
-  RawMustacheTag: new RawMustacheTagPrinter(),
-  DebugTag: new DebugTagPrinter(),
-  ConstTag: new ConstTagPrinter()
+  Slot: new ElementPrinter()
+  // SlotTemplate: new ElementPrinter(),
+  // Title: new ElementPrinter(),
+  // Slot: new ElementPrinter(),
+  // Head: new ElementPrinter(),
+  // Options: new ElementPrinter(),
+  // Window: new ElementPrinter(),
+  // Document: new ElementPrinter(),
+  // Body: new ElementPrinter(),
+
+  // Attribute: new AttributePrinter(),
+
+  // Text: new TextPrinter(),
+  // EventHandler: NoOp,
+  // Identifier: NoOp,
+  // Binding: NoOp,
+  // Class: NoOp,
+  // StyleDirective: NoOp,
+  // Action: NoOp,
+  // Transition: NoOp,
+  // Animation: NoOp,
+  // Comment: new CommentPrinter(),
+  // IfBlock: new IfBlockPrinter(),
+  // ElseBlock: new ElseBlockPrinter(),
+  // EachBlock: new EachBlockPrinter(),
+  // AwaitBlock: new AwaitBlockPrinter(),
+  // PendingBlock: new PendingBlockPrinter(),
+  // ThenBlock: new ThenBlockPrinter(),
+  // CatchBlock: new CatchBlockPrinter(),
+  // KeyBlock: new KeyBlockPrinter(),
+  // RawMustacheTag: new RawMustacheTagPrinter(),
+  // DebugTag: new DebugTagPrinter(),
+  // ConstTag: new ConstTagPrinter()
 };
 
 /**
@@ -449,7 +446,7 @@ export function getPrinters(): PrinterCollection {
 }
 
 export interface PrintHtmlParams {
-  rootNode: TemplateNode;
+  rootNode: SvelteNode | LegacySvelteNode;
   ident?: PrinterIdentOptions;
   printers?: PrinterCollection;
 }
@@ -469,11 +466,10 @@ export default function printHtml(params: PrintHtmlParams) {
 
   let nestingLevel = 0;
 
-  walk(_.cloneDeep(params.rootNode as any), {
-    enter: function (node: any, parent: any) {
-      if (node.skip === true) {
-        return;
-      }
+  const copy = _.cloneDeep(params.rootNode);
+
+  walk(copy, {
+    enter: function (node: SvelteNode | LegacySvelteNode, parent: SvelteNode | LegacySvelteNode) {
       const printer = printers[node.type];
       if (printer === undefined) {
         throw new Error(`Could not find printer for ${node.type}`);
@@ -488,18 +484,12 @@ export default function printHtml(params: PrintHtmlParams) {
       nestingLevel++;
     },
     leave: function (node: any, parent: any) {
-      if (node.skip === true) {
-        return;
-      }
-
       const printer = printers[node.type];
-
       printer.leave(node, parent, {
         _this: this,
         write,
         indent
       });
-
       nestingLevel--;
     }
   });

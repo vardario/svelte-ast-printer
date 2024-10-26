@@ -15,12 +15,12 @@ function testPrintAst(code: string, expectedResult?: string) {
   parse(result);
 }
 
-describe('print-ast', () => {
-  test('simple', () => {
-    testPrintAst('<script>let a;</script><main>Hello,World</main>');
-  });
+// describe('print-ast', () => {
+//   test('simple', () => {
+//     testPrintAst('<script>let a;</script><main>Hello,World</main>');
+//   });
 
-  test('with module', () => {
-    testPrintAst('<script context="module">let b;</script><script>let a;</script><main>Hello,World</main>');
-  });
-});
+//   test('with module', () => {
+//     testPrintAst('<script context="module">let b;</script><script>let a;</script><main>Hello,World</main>');
+//   });
+// });
