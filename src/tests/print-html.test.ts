@@ -43,48 +43,48 @@ describe('Attributes', () => {
   test('inline component element with attribute', () => testHtmlPrinter('<Input class="flex"/>'));
 });
 
-// describe('Element directives', () => {
-//   test('on:eventname', () => testHtmlPrinter('<input on:change={onChange}/>'));
-//   test('bind:property', () => testHtmlPrinter('<input bind:value/>', '<input bind:value={value}/>'));
-//   test('bind:group', () => testHtmlPrinter('<input type="radio" bind:group={tortilla} value="Plain"/>'));
+describe('Element directives', () => {
+  test('on:eventname', () => testHtmlPrinter('<input on:change={onChange}/>'));
+  test('bind:property', () => testHtmlPrinter('<input bind:value/>', '<input bind:value={value}/>'));
+  test('bind:group', () => testHtmlPrinter('<input type="radio" bind:group={tortilla} value="Plain"/>'));
 
-//   test('bind:this', () => testHtmlPrinter('<canvas bind:this={canvasElement}/>'));
+  test('bind:this', () => testHtmlPrinter('<canvas bind:this={canvasElement}/>'));
 
-//   test('class:name', () => {
-//     testHtmlPrinter('<div class:active={active}/>');
-//     testHtmlPrinter('<div class:active/>', '<div class:active={active}/>');
-//   });
+  test('class:name', () => {
+    testHtmlPrinter('<div class:active={active}/>');
+    testHtmlPrinter('<div class:active/>', '<div class:active={active}/>');
+  });
 
-//   test('style:property', () => {
-//     testHtmlPrinter('<div style:color/>');
-//     testHtmlPrinter('<div style:color="red"/>');
-//     testHtmlPrinter('<div style:color style:width="12rem" style:background-color={darkMode ? "black" : "white"}/>');
-//   });
+  test('style:property', () => {
+    testHtmlPrinter('<div style:color/>');
+    testHtmlPrinter('<div style:color="red"/>');
+    testHtmlPrinter('<div style:color style:width="12rem" style:background-color={darkMode ? "black" : "white"}/>');
+  });
 
-//   test('use:action', () => {
-//     testHtmlPrinter('<div use:foo={bar}/>');
-//     testHtmlPrinter('<div use:foo/>');
-//   });
+  // test('use:action', () => {
+  //   testHtmlPrinter('<div use:foo={bar}/>');
+  //   testHtmlPrinter('<div use:foo/>');
+  // });
 
-//   test('transition:fn', () => {
-//     testHtmlPrinter('<div transition:fade/>');
-//     testHtmlPrinter('<div transition:fade={{duration: 2000}}/>');
-//   });
+  // test('transition:fn', () => {
+  //   testHtmlPrinter('<div transition:fade/>');
+  //   testHtmlPrinter('<div transition:fade={{duration: 2000}}/>');
+  // });
 
-//   test('in/out:fn', () => {
-//     testHtmlPrinter('<div in:fly out:fade>flies in, fades out</div>');
-//     testHtmlPrinter('<div in:fly={{duration: 2000}} out:fade{{duration: 2000}}>flies in, fades out</div>');
-//   });
+  // test('in/out:fn', () => {
+  //   testHtmlPrinter('<div in:fly out:fade>flies in, fades out</div>');
+  //   testHtmlPrinter('<div in:fly={{duration: 2000}} out:fade{{duration: 2000}}>flies in, fades out</div>');
+  // });
 
-//   test('animate:fn', () => {
-//     testHtmlPrinter('<li animate:flip={{delay: 500}}>{item}</li>');
-//     testHtmlPrinter('<div animate:whizz>{item}</div>');
-//   });
+  // test('animate:fn', () => {
+  //   testHtmlPrinter('<li animate:flip={{delay: 500}}>{item}</li>');
+  //   testHtmlPrinter('<div animate:whizz>{item}</div>');
+  // });
 
-//   test('let:variable', () => {
-//     testHtmlPrinter('<checkbox let:isChecked/>');
-//   });
-// });
+  // test('let:variable', () => {
+  //   testHtmlPrinter('<checkbox let:isChecked/>');
+  // });
+});
 
 // describe('Template', () => {
 //   test('{#if ...}', () => {
