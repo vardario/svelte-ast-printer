@@ -1,6 +1,6 @@
 import { generate } from 'astring';
 import _ from 'lodash';
-import { walk } from 'svelte/compiler';
+import { walk } from 'estree-walker';
 import {
   Attribute,
   Comment,
