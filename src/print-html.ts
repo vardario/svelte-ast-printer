@@ -153,26 +153,12 @@ class ElementPrinter extends BaseHtmlNodePrinter {
               return `style:${attribute.name}={${generate(value.expression, context.indent)}}`;
             }
 
-            if(value.type === 'MustacheTag') {
+            if (value.type === 'MustacheTag') {
               return `style:${attribute.name}={${generate(value.expression, context.indent)}}`;
             }
-
-           
           }
-
-          // if (attribute?.expression) {
-          //   return `${attributeName}={${generate(attribute.expression, context.indent)}}`;
-          // }
         })
         .join(' ') ?? '';
-
-    // if (elementNode.expression) {
-    //   write(` this={${generate(elementNode.expression, context.indent)}}`);
-    // }
-
-    // if (elementNode.tag) {
-    //   write(` this={${generate(elementNode.tag, context.indent)}}`);
-    // }
 
     write(attributes !== '' ? ` ${attributes}` : '');
   }
