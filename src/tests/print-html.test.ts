@@ -61,99 +61,99 @@ describe('Element directives', () => {
     testHtmlPrinter('<div style:color style:width="12rem" style:background-color={darkMode ? "black" : "white"}/>');
   });
 
-  // test('use:action', () => {
-  //   testHtmlPrinter('<div use:foo={bar}/>');
-  //   testHtmlPrinter('<div use:foo/>');
-  // });
+  test('use:action', () => {
+    testHtmlPrinter('<div use:foo={bar}/>');
+    testHtmlPrinter('<div use:foo/>');
+  });
 
-  // test('transition:fn', () => {
-  //   testHtmlPrinter('<div transition:fade/>');
-  //   testHtmlPrinter('<div transition:fade={{duration: 2000}}/>');
-  // });
+  test('transition:fn', () => {
+    testHtmlPrinter('<div transition:fade/>');
+    testHtmlPrinter('<div transition:fade={{duration: 2000}}/>');
+  });
 
-  // test('in/out:fn', () => {
-  //   testHtmlPrinter('<div in:fly out:fade>flies in, fades out</div>');
-  //   testHtmlPrinter('<div in:fly={{duration: 2000}} out:fade{{duration: 2000}}>flies in, fades out</div>');
-  // });
+  test('in/out:fn', () => {
+    testHtmlPrinter('<div in:fly out:fade>flies in, fades out</div>');
+    testHtmlPrinter('<div in:fly={{duration: 2000}} out:fade{{duration: 2000}}>flies in, fades out</div>');
+  });
 
-  // test('animate:fn', () => {
-  //   testHtmlPrinter('<li animate:flip={{delay: 500}}>{item}</li>');
-  //   testHtmlPrinter('<div animate:whizz>{item}</div>');
-  // });
+  test('animate:fn', () => {
+    testHtmlPrinter('<li animate:flip={{delay: 500}}>{item}</li>');
+    testHtmlPrinter('<div animate:whizz>{item}</div>');
+  });
 
-  // test('let:variable', () => {
-  //   testHtmlPrinter('<checkbox let:isChecked/>');
-  // });
+  test('let:variable', () => {
+    testHtmlPrinter('<checkbox let:isChecked/>');
+  });
 });
 
-// describe('Template', () => {
-//   test('{#if ...}', () => {
-//     testHtmlPrinter('{#if answer === 42}<p>what was the question?</p>{/if}');
-//   });
+describe('Template', () => {
+  test('{#if ...}', () => {
+    testHtmlPrinter('{#if answer === 42}<p>what was the question?</p>{/if}');
+  });
 
-//   test('{#if expression}...{:else}...{/if}', () => {
-//     testHtmlPrinter("{#if answer === 42}<p>what was the question?</p>{:else}<p>We don't know</p>{/if}");
-//   });
+  test('{#if expression}...{:else}...{/if}', () => {
+    testHtmlPrinter("{#if answer === 42}<p>what was the question?</p>{:else}<p>We don't know</p>{/if}");
+  });
 
-//   test('{#if expression}...{:else if}...{/if}', () => {
-//     testHtmlPrinter(
-//       "{#if answer === 42}<p>what was the question?</p>{:else if answer === 43}<p>We don't know</p>{/if}"
-//     );
-//   });
+  test('{#if expression}...{:else if}...{/if}', () => {
+    testHtmlPrinter(
+      "{#if answer === 42}<p>what was the question?</p>{:else if answer === 43}<p>We don't know</p>{/if}"
+    );
+  });
 
-//   test('{#if expression}...{:else}...{/if}', () => {
-//     testHtmlPrinter("{#if answer === 42}<p>what was the question?</p>{:else}<p>We don't know</p>{/if}");
-//   });
+  test('{#if expression}...{:else}...{/if}', () => {
+    testHtmlPrinter("{#if answer === 42}<p>what was the question?</p>{:else}<p>We don't know</p>{/if}");
+  });
 
-//   test('{#if expression}...{:else if expression}...{/if}', () => {
-//     testHtmlPrinter('{#if a > 100}<p>a</p>{:else if a > 200}<p>b</p>{:else}<p>c</p>{/if}');
-//   });
+  test('{#if expression}...{:else if expression}...{/if}', () => {
+    testHtmlPrinter('{#if a > 100}<p>a</p>{:else if a > 200}<p>b</p>{:else}<p>c</p>{/if}');
+  });
 
-//   test('{#if}...{:else if expression}...{:else if expression}...{/if}', () => {
-//     testHtmlPrinter('{#if a > 100}<p>a</p>{:else if a > 200}<p>b</p>{:else if a > 300}<p>c</p>{/if}');
-//   });
+  test('{#if}...{:else if expression}...{:else if expression}...{/if}', () => {
+    testHtmlPrinter('{#if a > 100}<p>a</p>{:else if a > 200}<p>b</p>{:else if a > 300}<p>c</p>{/if}');
+  });
 
-//   test('{#if expression}...{:else if expression}...{:else if expression}...{:else}...{/if}', () => {
-//     testHtmlPrinter('{#if a > 100}<p>a</p>{:else if a > 200}<p>b</p>{:else if a > 300}<p>c</p>{:else}<p>d</p>{/if}');
-//   });
+  test('{#if expression}...{:else if expression}...{:else if expression}...{:else}...{/if}', () => {
+    testHtmlPrinter('{#if a > 100}<p>a</p>{:else if a > 200}<p>b</p>{:else if a > 300}<p>c</p>{:else}<p>d</p>{/if}');
+  });
 
-//   test('{#each}', () => {
-//     testHtmlPrinter('{#each items as item}<li>{item.name} x {item.qty}</li>{/each}');
-//     testHtmlPrinter('{#each items as item (item.id)}<li>{item.name} x {item.qty}</li>{/each}');
-//     testHtmlPrinter('{#each items as item, i (item.id)}<li>{i + 1}: {item.name} x {item.qty}</li>{/each}');
-//     testHtmlPrinter('{#each items as {id, name, qty}, i (id)}<li>{i + 1}: {name} x {qty}</li>{/each}');
-//     testHtmlPrinter('{#each objects as {id, ...rest}}<li><span>{id}</span><MyComponent {...rest}/></li>{/each}');
-//   });
-// });
+  test('{#each}', () => {
+    testHtmlPrinter('{#each items as item}<li>{item.name} x {item.qty}</li>{/each}');
+    testHtmlPrinter('{#each items as item (item.id)}<li>{item.name} x {item.qty}</li>{/each}');
+    testHtmlPrinter('{#each items as item, i (item.id)}<li>{i + 1}: {item.name} x {item.qty}</li>{/each}');
+    testHtmlPrinter('{#each items as {id, name, qty}, i (id)}<li>{i + 1}: {name} x {qty}</li>{/each}');
+    testHtmlPrinter('{#each objects as {id, ...rest}}<li><span>{id}</span><MyComponent {...rest}/></li>{/each}');
+  });
 
-// test('{#await}', () => {
-//   testHtmlPrinter(
-//     '{#await promise}<p>waiting for the promise to resolve...</p>{:then value}<p>The value is {value}</p>{:catch error}<p>Something went wrong: {error.message}</p>{/await}'
-//   );
-//   testHtmlPrinter(
-//     '{#await promise}<p>waiting for the promise to resolve...</p>{:then value}<p>The value is {value}</p>{/await}'
-//   );
+  test('{#await}', () => {
+    testHtmlPrinter(
+      '{#await promise}<p>waiting for the promise to resolve...</p>{:then value}<p>The value is {value}</p>{:catch error}<p>Something went wrong: {error.message}</p>{/await}'
+    );
+    testHtmlPrinter(
+      '{#await promise}<p>waiting for the promise to resolve...</p>{:then value}<p>The value is {value}</p>{/await}'
+    );
 
-//   testHtmlPrinter('{#await promise then value}<p>The value is {value}</p>{/await}');
-//   testHtmlPrinter('{#await promise catch error}<p>The error is {error}</p>{/await}');
-//   testHtmlPrinter('{#await item.promise then value}<p>{value}</p>{/await}');
-// });
+    testHtmlPrinter('{#await promise then value}<p>The value is {value}</p>{/await}');
+    testHtmlPrinter('{#await promise catch error}<p>The error is {error}</p>{/await}');
+    testHtmlPrinter('{#await item.promise then value}<p>{value}</p>{/await}');
+  });
 
-// test('{#key ...}', () => {
-//   testHtmlPrinter('{#key value}<div transition:fade>{value}</div>{/key}');
-// });
+  test('{#key ...}', () => {
+    testHtmlPrinter('{#key value}<div transition:fade>{value}</div>{/key}');
+  });
 
-// test('{@html ...}', () => {
-//   testHtmlPrinter('{@html post.content}');
-// });
+  test('{@html ...}', () => {
+    testHtmlPrinter('{@html post.content}');
+  });
 
-// test('{@debug ...}', () => {
-//   testHtmlPrinter('{@debug var1, var2}');
-// });
+  test('{@debug ...}', () => {
+    testHtmlPrinter('{@debug var1, var2}');
+  });
 
-// test('{@const ...}', () => {
-//   testHtmlPrinter('{@const area = box.width * box.height}');
-// });
+  test('{@const ...}', () => {
+    testHtmlPrinter('{@const area = box.width * box.height}');
+  });
+});
 
 // describe('Svelte Component', () => {
 //   test('<svelte:self>', () => {

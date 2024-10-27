@@ -5,14 +5,31 @@ import type { TemplateNode, AST, SvelteNode } from 'svelte/src/compiler/types/te
 import type {
   BaseElement,
   LegacyAttribute,
+  LegacyCatchBlock,
   LegacyComment,
   LegacyMustacheTag,
+  LegacyPendingBlock,
+  LegacyRawMustacheTag,
   LegacySpread,
-  LegacySvelteNode
+  LegacySvelteNode,
+  LegacyThenBlock
 } from 'svelte/src/compiler/types/legacy-nodes.js';
 
 import { DefaultPrinterIdentOptions, PrinterIdentOptions } from './index.js';
+import { Expression } from 'estree';
 export type Write = (text: string) => void;
+
+declare module 'svelte/src/compiler/types/template.js' {
+  namespace AST {
+    interface IfBlock {
+      expression?: Expression;
+    }
+
+    interface ConstTag {
+      expression?: Expression;
+    }
+  }
+}
 
 export interface PrinterContext {
   _this: any;
@@ -67,55 +84,17 @@ class ElementPrinter extends BaseHtmlNodePrinter {
     const attributes =
       elementNode.attributes
         ?.map(attribute => {
-          let attributeName = '';
-
-          switch (attribute.type) {
-            case 'EventHandler':
-              attributeName = 'on:';
-              break;
-            case 'Binding':
-              attributeName = 'bind:';
-              break;
-            case 'Class':
-              attributeName = 'class:';
-              break;
-            case 'StyleDirective':
-              attributeName = 'style:';
-              break;
-            case 'Action':
-              attributeName = 'use:';
-              break;
-            case 'Transition':
-              if (attribute.intro === attribute.outro) {
-                attributeName = 'transition:';
-              } else if (attribute.intro && !attribute.outro) {
-                attributeName = 'in:';
-              } else if (!attribute.intro && attribute.outro) {
-                attributeName = 'out:';
-              }
-              break;
-
-            case 'Animation':
-              attributeName = 'animate:';
-              break;
-
-            case 'Let':
-              attributeName = 'let:';
-              break;
-          }
-
           if (attribute.type === 'Attribute') {
             if (attribute.value === true) {
               return attribute.name;
             }
 
             const [value] = attribute.value;
-            attributeName += attribute.name;
 
             if (value.type === 'AttributeShorthand') {
               return this.attributeValueToString(attribute, context);
             }
-            return `${attributeName}=${this.attributeValueToString(attribute, context)}`;
+            return `${attribute.name}=${this.attributeValueToString(attribute, context)}`;
           }
 
           if (attribute.type === 'Spread') {
@@ -156,6 +135,47 @@ class ElementPrinter extends BaseHtmlNodePrinter {
             if (value.type === 'MustacheTag') {
               return `style:${attribute.name}={${generate(value.expression, context.indent)}}`;
             }
+          }
+
+          if (attribute.type === 'Action') {
+            if (attribute.expression) {
+              return `use:${attribute.name}={${generate(attribute.expression, context.indent)}}`;
+            }
+            return `use:${attribute.name}`;
+          }
+
+          if (attribute.type === 'Transition') {
+            if (attribute.intro === attribute.outro) {
+              if (attribute.expression) {
+                return `transition:${attribute.name}={${generate(attribute.expression, context.indent)}}`;
+              }
+              return `transition:${attribute.name}`;
+            }
+
+            if (attribute.intro) {
+              if (attribute.expression) {
+                return `in:${attribute.name}={${generate(attribute.expression, context.indent)}}`;
+              }
+              return `in:${attribute.name}`;
+            }
+
+            if (attribute.outro) {
+              if (attribute.expression) {
+                return `out:${attribute.name}={${generate(attribute.expression, context.indent)}}`;
+              }
+              return `out:${attribute.name}`;
+            }
+          }
+
+          if (attribute.type === 'Animation') {
+            if (attribute.expression) {
+              return `animate:${attribute.name}={${generate(attribute.expression, context.indent)}}`;
+            }
+            return `animate:${attribute.name}`;
+          }
+
+          if (attribute.type === 'Let') {
+            return `let:${attribute.name}`;
           }
         })
         .join(' ') ?? '';
@@ -237,13 +257,13 @@ class CommentPrinter extends BaseHtmlNodePrinter {
 }
 
 class IfBlockPrinter extends BaseHtmlNodePrinter {
-  enter(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {
+  enter(node: AST.IfBlock, __: SvelteNode, context: PrinterContext) {
     const { write } = context;
 
     if (!node.elseif) {
-      write(`{#if ${generate(node.expression, context.indent)}}`);
+      write(`{#if ${generate(node.test || node.expression, context.indent)}}`);
     } else {
-      write(` if ${generate(node.expression, context.indent)}}`);
+      write(` if ${generate(node.test || node.expression, context.indent)}}`);
     }
 
     write(context.indent.lineEnd);
@@ -253,7 +273,7 @@ class IfBlockPrinter extends BaseHtmlNodePrinter {
       expression: undefined
     });
   }
-  leave(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {
+  leave(node: AST.IfBlock, __: SvelteNode, context: PrinterContext) {
     const { write } = context;
     if (!node.elseif) {
       write('{/if}');
@@ -264,7 +284,7 @@ class IfBlockPrinter extends BaseHtmlNodePrinter {
 }
 
 class ElseBlockPrinter extends BaseHtmlNodePrinter {
-  enter(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {
+  enter(node: any, parent: TemplateNode, context: PrinterContext) {
     const { write } = context;
 
     const [child] = node.children ?? [];
@@ -279,7 +299,7 @@ class ElseBlockPrinter extends BaseHtmlNodePrinter {
 }
 
 class EachBlockPrinter extends BaseHtmlNodePrinter {
-  enter(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {
+  enter(node: AST.EachBlock, parent: TemplateNode, context: PrinterContext) {
     const { write } = context;
 
     write(`{#each ${generate(node.expression, context.indent)}`);
@@ -312,9 +332,13 @@ class EachBlockPrinter extends BaseHtmlNodePrinter {
 }
 
 class AwaitBlockPrinter extends BaseHtmlNodePrinter {
-  enter(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {
+  enter(node: AST.AwaitBlock, parent: TemplateNode, context: PrinterContext) {
     const { write } = context;
-    write(`{#await ${generate(node.expression, context.indent)}${node.pending.skip === false ? '}' : ''}`);
+    write(
+      `{#await ${generate(node.expression, context.indent)}${
+        (node.pending as unknown as LegacyPendingBlock).skip === false ? '}' : ''
+      }`
+    );
     context._this.replace({
       ...node,
       expression: undefined
@@ -332,9 +356,9 @@ class PendingBlockPrinter extends BaseHtmlNodePrinter {
 }
 
 class ThenBlockPrinter extends BaseHtmlNodePrinter {
-  enter(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {
+  enter(node: LegacyThenBlock, parent: AST.AwaitBlock, context: PrinterContext) {
     const { write } = context;
-    if (parent.pending.skip === true) {
+    if ((parent.pending as unknown as LegacyPendingBlock).skip === true) {
       write(' then');
     } else {
       write('{:then');
@@ -349,9 +373,9 @@ class ThenBlockPrinter extends BaseHtmlNodePrinter {
 }
 
 class CatchBlockPrinter extends BaseHtmlNodePrinter {
-  enter(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {
+  enter(node: LegacyCatchBlock, parent: AST.AwaitBlock, context: PrinterContext) {
     const { write } = context;
-    if (parent.pending.skip === true) {
+    if ((parent.pending as unknown as LegacyPendingBlock).skip === true) {
       write(' catch');
     } else {
       write('{:catch');
@@ -366,7 +390,7 @@ class CatchBlockPrinter extends BaseHtmlNodePrinter {
 }
 
 class KeyBlockPrinter extends BaseHtmlNodePrinter {
-  enter(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {
+  enter(node: AST.KeyBlock, parent: TemplateNode, context: PrinterContext) {
     const { write } = context;
     write(`{#key ${generate(node.expression, context.indent)}}`);
   }
@@ -377,7 +401,7 @@ class KeyBlockPrinter extends BaseHtmlNodePrinter {
 }
 
 class RawMustacheTagPrinter extends BaseHtmlNodePrinter {
-  enter(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {
+  enter(node: LegacyRawMustacheTag, parent: TemplateNode, context: PrinterContext) {
     const { write } = context;
     write(`{@html ${generate(node.expression, context.indent)}}`);
     context._this.replace({
@@ -389,7 +413,7 @@ class RawMustacheTagPrinter extends BaseHtmlNodePrinter {
 }
 
 class DebugTagPrinter extends BaseHtmlNodePrinter {
-  enter(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {
+  enter(node: AST.DebugTag, parent: TemplateNode, context: PrinterContext) {
     const { write } = context;
     write(`{@debug ${node.identifiers.map((id: any) => generate(id, context.indent)).join(', ')}}`);
   }
@@ -397,9 +421,9 @@ class DebugTagPrinter extends BaseHtmlNodePrinter {
 }
 
 class ConstTagPrinter extends BaseHtmlNodePrinter {
-  enter(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {
+  enter(node: AST.ConstTag, parent: TemplateNode, context: PrinterContext) {
     const { write } = context;
-    write(`{@const ${generate(node.expression, context.indent)}}`);
+    write(`{@const ${generate(node.expression!, context.indent)}}`);
     context._this.replace({
       ...node,
       expression: undefined
@@ -437,19 +461,19 @@ const PRINTERS: PrinterCollection = {
   StyleDirective: NoOp,
   Action: NoOp,
   Transition: NoOp,
-  Animation: NoOp
+  Animation: NoOp,
   // Comment: new CommentPrinter(),
-  // IfBlock: new IfBlockPrinter(),
-  // ElseBlock: new ElseBlockPrinter(),
-  // EachBlock: new EachBlockPrinter(),
-  // AwaitBlock: new AwaitBlockPrinter(),
-  // PendingBlock: new PendingBlockPrinter(),
-  // ThenBlock: new ThenBlockPrinter(),
-  // CatchBlock: new CatchBlockPrinter(),
-  // KeyBlock: new KeyBlockPrinter(),
-  // RawMustacheTag: new RawMustacheTagPrinter(),
-  // DebugTag: new DebugTagPrinter(),
-  // ConstTag: new ConstTagPrinter()
+  IfBlock: new IfBlockPrinter(),
+  ElseBlock: new ElseBlockPrinter(),
+  EachBlock: new EachBlockPrinter(),
+  AwaitBlock: new AwaitBlockPrinter(),
+  PendingBlock: new PendingBlockPrinter(),
+  ThenBlock: new ThenBlockPrinter(),
+  CatchBlock: new CatchBlockPrinter(),
+  KeyBlock: new KeyBlockPrinter(),
+  RawMustacheTag: new RawMustacheTagPrinter(),
+  DebugTag: new DebugTagPrinter(),
+  ConstTag: new ConstTagPrinter()
 };
 
 /**
