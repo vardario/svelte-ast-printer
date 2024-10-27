@@ -180,6 +180,14 @@ class ElementPrinter extends BaseHtmlNodePrinter {
         })
         .join(' ') ?? '';
 
+    if ((elementNode as any).expression) {
+      write(` this={${generate((elementNode as any).expression, context.indent)}}`);
+    }
+
+    if (elementNode.name === 'svelte:element' && (elementNode as any).tag) {
+      write(` this={${generate((elementNode as any).tag, context.indent)}}`);
+    }
+
     write(attributes !== '' ? ` ${attributes}` : '');
   }
 
