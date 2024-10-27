@@ -444,15 +444,13 @@ const PRINTERS: PrinterCollection = {
   MustacheTag: new MustacheTagPrinter(),
   Comment: new CommentPrinter(),
   Slot: new ElementPrinter(),
-  // SlotTemplate: new ElementPrinter(),
-  // Title: new ElementPrinter(),
-  // Slot: new ElementPrinter(),
-  // Head: new ElementPrinter(),
-  // Options: new ElementPrinter(),
-  // Window: new ElementPrinter(),
-  // Document: new ElementPrinter(),
-  // Body: new ElementPrinter(),
-  // Text: new TextPrinter(),
+  SlotTemplate: new ElementPrinter(),
+  Title: new ElementPrinter(),
+  Head: new ElementPrinter(),
+  Options: new ElementPrinter(),
+  Window: new ElementPrinter(),
+  Document: new ElementPrinter(),
+  Body: new ElementPrinter(),
   Attribute: NoOp,
   EventHandler: NoOp,
   Identifier: NoOp,
@@ -462,7 +460,6 @@ const PRINTERS: PrinterCollection = {
   Action: NoOp,
   Transition: NoOp,
   Animation: NoOp,
-  // Comment: new CommentPrinter(),
   IfBlock: new IfBlockPrinter(),
   ElseBlock: new ElseBlockPrinter(),
   EachBlock: new EachBlockPrinter(),
@@ -503,8 +500,6 @@ export default function printHtml(params: PrintHtmlParams) {
     result += text;
   };
 
-  let nestingLevel = 0;
-
   const copy = _.cloneDeep(params.rootNode);
 
   walk(copy, {
@@ -522,8 +517,6 @@ export default function printHtml(params: PrintHtmlParams) {
         write,
         indent
       });
-
-      nestingLevel++;
     },
     leave: function (node: any, parent: any) {
       if (node.skip === true) {
@@ -535,7 +528,6 @@ export default function printHtml(params: PrintHtmlParams) {
         write,
         indent
       });
-      nestingLevel--;
     }
   });
 
