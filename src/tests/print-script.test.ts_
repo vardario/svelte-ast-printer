@@ -14,12 +14,12 @@ function testScriptPrinter(code: string, expectedResult?: string) {
   expect(result, expectedResult ?? code);
 }
 
-// describe('<script>', () => {
-//   test('simple instance', () => {
-//     testScriptPrinter('<script>let a;</script>');
-//   });
+describe('<script>', () => {
+  test('simple instance', () => {
+    testScriptPrinter('<script>let a;</script>');
+  });
 
-//   test('simple module', () => {
-//     testScriptPrinter('<script context="module">let a;</script>');
-//   });
-// });
+  test('simple module', () => {
+    testScriptPrinter('<script context="module">let a;</script>');
+  });
+});

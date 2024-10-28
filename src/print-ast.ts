@@ -1,8 +1,8 @@
-import { Ast } from 'svelte/types/compiler/interfaces';
+import type {  AST } from 'svelte/src/compiler/types/template.js';
 import { DefaultPrinterIdentOptions, PrinterIdentOptions, printHtml, printScript } from './index.js';
 
 export interface PrintAstParams {
-  ast: Ast;
+  ast: AST.Root;
   indent?: PrinterIdentOptions;
 }
 

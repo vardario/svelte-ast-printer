@@ -1,22 +1,17 @@
 import { generate } from 'astring';
-import _ from 'lodash';
+import _, { isArray } from 'lodash';
 import { walk } from 'estree-walker';
-import type { TemplateNode, AST, SvelteNode } from 'svelte/src/compiler/types/template.js';
+import type { TemplateNode, AST, SvelteNode, Directive } from 'svelte/src/compiler/types/template.js';
 import type {
-  BaseElement,
-  LegacyAttribute,
   LegacyCatchBlock,
-  LegacyComment,
   LegacyMustacheTag,
   LegacyPendingBlock,
   LegacyRawMustacheTag,
-  LegacySpread,
-  LegacySvelteNode,
   LegacyThenBlock
 } from 'svelte/src/compiler/types/legacy-nodes.js';
 
 import { DefaultPrinterIdentOptions, PrinterIdentOptions } from './index.js';
-import { Expression } from 'estree';
+import { Expression, Node } from 'estree';
 export type Write = (text: string) => void;
 
 declare module 'svelte/src/compiler/types/template.js' {
@@ -31,6 +26,23 @@ declare module 'svelte/src/compiler/types/template.js' {
   }
 }
 
+const HTML_VOID_ELEMENTS = new Set([
+  'area',
+  'base',
+  'br',
+  'col',
+  'embed',
+  'hr',
+  'img',
+  'input',
+  'link',
+  'meta',
+  'param',
+  'source',
+  'track',
+  'wbr'
+]);
+
 export interface PrinterContext {
   _this: any;
   write: Write;
@@ -40,16 +52,8 @@ export interface PrinterContext {
 export abstract class BaseHtmlNodePrinter {
   constructor() {}
 
-  abstract enter(
-    node: SvelteNode | LegacySvelteNode,
-    parent: SvelteNode | LegacySvelteNode,
-    context: PrinterContext
-  ): void;
-  abstract leave(
-    node: SvelteNode | LegacySvelteNode,
-    parent: SvelteNode | LegacySvelteNode,
-    context: PrinterContext
-  ): void;
+  abstract enter(node: SvelteNode, parent: SvelteNode, context: PrinterContext): void;
+  abstract leave(node: SvelteNode, parent: SvelteNode, context: PrinterContext): void;
 }
 
 class FragmentPrinter extends BaseHtmlNodePrinter {
@@ -57,177 +61,145 @@ class FragmentPrinter extends BaseHtmlNodePrinter {
   leave(_: any, __: any, ___: PrinterContext) {}
 }
 
-class ElementPrinter extends BaseHtmlNodePrinter {
-  attributeValueToString(attribute: LegacyAttribute | LegacySpread, context: PrinterContext) {
-    if (attribute.type === 'Attribute' && attribute.value !== true) {
-      const [value] = attribute.value;
-
-      if (value.type === 'Text') {
-        return `"${value.data}"`;
-      }
-
-      if (['MustacheTag', 'AttributeShorthand'].includes(value.type)) {
-        return `{${generate(value.expression, context.indent)}}`;
-      }
-    }
-
-    if (attribute.type === 'Spread' && attribute.expression) {
-      return `{${generate(attribute.expression, context.indent)}}`;
-    }
-
-    return '';
-  }
-
-  private printAttributes(elementNode: BaseElement, context: PrinterContext) {
+class ExpressionTagPrinter extends BaseHtmlNodePrinter {
+  enter(node: AST.ExpressionTag, __: any, context: PrinterContext) {
     const { write } = context;
-
-    const attributes =
-      elementNode.attributes
-        ?.map(attribute => {
-          if (attribute.type === 'Attribute') {
-            if (attribute.value === true) {
-              return attribute.name;
-            }
-
-            const [value] = attribute.value;
-
-            if (value.type === 'AttributeShorthand') {
-              return this.attributeValueToString(attribute, context);
-            }
-            return `${attribute.name}=${this.attributeValueToString(attribute, context)}`;
-          }
-
-          if (attribute.type === 'Spread') {
-            return `{...${generate(attribute.expression, context.indent)}}`;
-          }
-
-          if (attribute.type === 'EventHandler') {
-            if (attribute.expression) {
-              return `on:${attribute.name}={${generate(attribute.expression, context.indent)}}`;
-            }
-
-            return `${attribute.name}`;
-          }
-
-          if (attribute.type === 'Binding') {
-            return `bind:${attribute.name}={${generate(attribute.expression, context.indent)}}`;
-          }
-
-          if (attribute.type === 'Class') {
-            return `class:${attribute.name}={${generate(attribute.expression, context.indent)}}`;
-          }
-
-          if (attribute.type === 'StyleDirective') {
-            if (attribute.value === true) {
-              return `style:${attribute.name}`;
-            }
-
-            const [value] = attribute.value;
-
-            if (value.type === 'Text') {
-              return `style:${attribute.name}="${value.data}"`;
-            }
-
-            if (value.type === 'ExpressionTag') {
-              return `style:${attribute.name}={${generate(value.expression, context.indent)}}`;
-            }
-
-            if (value.type === 'MustacheTag') {
-              return `style:${attribute.name}={${generate(value.expression, context.indent)}}`;
-            }
-          }
-
-          if (attribute.type === 'Action') {
-            if (attribute.expression) {
-              return `use:${attribute.name}={${generate(attribute.expression, context.indent)}}`;
-            }
-            return `use:${attribute.name}`;
-          }
-
-          if (attribute.type === 'Transition') {
-            if (attribute.intro === attribute.outro) {
-              if (attribute.expression) {
-                return `transition:${attribute.name}={${generate(attribute.expression, context.indent)}}`;
-              }
-              return `transition:${attribute.name}`;
-            }
-
-            if (attribute.intro) {
-              if (attribute.expression) {
-                return `in:${attribute.name}={${generate(attribute.expression, context.indent)}}`;
-              }
-              return `in:${attribute.name}`;
-            }
-
-            if (attribute.outro) {
-              if (attribute.expression) {
-                return `out:${attribute.name}={${generate(attribute.expression, context.indent)}}`;
-              }
-              return `out:${attribute.name}`;
-            }
-          }
-
-          if (attribute.type === 'Animation') {
-            if (attribute.expression) {
-              return `animate:${attribute.name}={${generate(attribute.expression, context.indent)}}`;
-            }
-            return `animate:${attribute.name}`;
-          }
-
-          if (attribute.type === 'Let') {
-            return `let:${attribute.name}`;
-          }
-        })
-        .join(' ') ?? '';
-
-    if ((elementNode as any).expression) {
-      write(` this={${generate((elementNode as any).expression, context.indent)}}`);
-    }
-
-    if (elementNode.name === 'svelte:element' && (elementNode as any).tag) {
-      write(` this={${generate((elementNode as any).tag, context.indent)}}`);
-    }
-
-    write(attributes !== '' ? ` ${attributes}` : '');
-  }
-
-  enter(node: BaseElement, _: any, context: PrinterContext) {
-    const { write } = context;
-    if (node.children && node.children.length > 0) {
-      write(context.indent.indent);
-      write(`<${node.name}`);
-      this.printAttributes(node, context);
-      write('>');
-    } else {
-      write(`<${node.name}`);
-      this.printAttributes(node, context);
-      write('/>');
-    }
+    write(`{${generate(node.expression, context.indent)}}`);
 
     context._this.replace({
       ...node,
-      attributes: undefined,
-      tag: undefined,
       expression: undefined
     });
+  }
+  leave(_: any, __: any, ___: PrinterContext) {}
+}
+
+class ElementPrinter extends BaseHtmlNodePrinter {
+  private printAttributes(attribute: AST.Attribute | AST.SpreadAttribute | Directive, context: PrinterContext) {
+    const { write } = context;
+
+    if (attribute.type === 'Attribute') {
+      if (attribute.value === true) {
+        return;
+      }
+
+      if (isArray(attribute.value)) {
+        const [value] = attribute.value;
+
+        if (value.type === 'Text') {
+          write(` ${attribute.name}="${value.data}"`);
+        }
+
+        if (value.type === 'ExpressionTag') {
+          write(` ${attribute.name}={${generate(value.expression, context.indent)}}`);
+        }
+      } else {
+        write(` ${attribute.name}={${generate(attribute.value.expression, context.indent)}}`);
+      }
+    } else if (attribute.type === 'SpreadAttribute') {
+      write(` {...${generate(attribute.expression, context.indent)}}`);
+    } else if (attribute.type === 'AnimateDirective') {
+      if (attribute.expression) {
+        write(` animate:${attribute.name}={${generate(attribute.expression, context.indent)}}`);
+      } else {
+        write(` animate:${attribute.name}`);
+      }
+    } else if (attribute.type === 'BindDirective') {
+      write(` bind:${attribute.name}={${generate(attribute.expression, context.indent)}}`);
+    } else if (attribute.type === 'ClassDirective') {
+      write(` class:${attribute.name}={${generate(attribute.expression, context.indent)}}`);
+    } else if (attribute.type === 'LetDirective') {
+      if (attribute.expression) {
+        write(` let:${attribute.name}={${generate(attribute.expression, context.indent)}}`);
+      } else {
+        write(` let:${attribute.name}`);
+      }
+    } else if (attribute.type === 'OnDirective') {
+      if (attribute.expression) {
+        write(` on:${attribute.name}={${generate(attribute.expression, context.indent)}}`);
+      } else {
+        write(` on:${attribute.name}`);
+      }
+    } else if (attribute.type === 'StyleDirective') {
+      if (attribute.value === true) {
+        write(` style:${attribute.name}`);
+      } else {
+        if (isArray(attribute.value)) {
+          const [value] = attribute.value;
+          if (value.type === 'Text') {
+            write(` style:${attribute.name}="${value.data}"`);
+          } else {
+            write(` style:${attribute.name}={${generate(value, context.indent)}}`);
+          }
+        } else {
+          write(` style:${attribute.name}={${generate(attribute.value, context.indent)}}`);
+        }
+      }
+    } else if (attribute.type === 'TransitionDirective') {
+      const transition = () => {
+        if (attribute.intro) {
+          return 'in:';
+        }
+
+        if (attribute.outro) {
+          return 'out:';
+        }
+
+        return 'transition:';
+      };
+
+      if (attribute.expression) {
+        write(` ${transition()}:${attribute.name}={${generate(attribute.expression, context.indent)}}`);
+      } else {
+        write(` ${transition()}:${attribute.name}`);
+      }
+    } else if (attribute.type === 'UseDirective') {
+      if (attribute.expression) {
+        write(` use:${attribute.name}={${generate(attribute.expression, context.indent)}}`);
+      } else {
+        write(` use:${attribute.name}`);
+      }
+    }
+  }
+
+  enter(node: AST.RegularElement | AST.Component | AST.SlotElement, _: any, context: PrinterContext) {
+    const { write } = context;
+
+    write(`<${node.name}`);
+    node.attributes.forEach(attribute => this.printAttributes(attribute, context));
+
+    if ((node.type === 'Component' || node.type === 'SlotElement') && node.fragment.nodes.length === 0) {
+      write('/>');
+    } else {
+      write('>');
+    }
 
     write(context.indent.lineEnd);
   }
-  leave(node: BaseElement, _: any, context: PrinterContext) {
+  leave(node: AST.RegularElement | AST.Component | AST.SlotElement, parent: SvelteNode, context: PrinterContext) {
     const { write } = context;
 
-    if (node.children && node.children.length > 0) {
+    if (!HTML_VOID_ELEMENTS.has(node.name)) {
+      if ((node.type === 'Component' || node.type === 'SlotElement') && node.fragment.nodes.length === 0) {
+        return;
+      }
+
       write(`</${node.name}>`);
-      write(context.indent.lineEnd);
     }
   }
 }
 
 class TextPrinter extends BaseHtmlNodePrinter {
-  enter(node: AST.Text, _: any, context: PrinterContext) {
+  enter(node: AST.Text, parent: SvelteNode, context: PrinterContext) {
     const { write } = context;
-    write(node.data);
+
+    if (parent.type === 'Attribute') {
+      write(`"${node.data}"`);
+    } else {
+      write(node.data);
+    }
   }
+
   leave(_: TemplateNode, __: TemplateNode, ___: PrinterContext) {}
 }
 
@@ -251,7 +223,7 @@ class MustacheTagPrinter extends BaseHtmlNodePrinter {
 }
 
 class CommentPrinter extends BaseHtmlNodePrinter {
-  enter(node: LegacyComment, __: any, context: PrinterContext) {
+  enter(node: AST.Comment, __: any, context: PrinterContext) {
     const { write } = context;
 
     const comment = _.trim(node.data);
@@ -446,39 +418,43 @@ export type PrinterCollection = Record<string, BaseHtmlNodePrinter>;
 
 const PRINTERS: PrinterCollection = {
   Fragment: new FragmentPrinter(),
-  Element: new ElementPrinter(),
-  InlineComponent: new ElementPrinter(),
+  RegularElement: new ElementPrinter(),
+  Component: new ElementPrinter(),
   Text: new TextPrinter(),
-  MustacheTag: new MustacheTagPrinter(),
+  ExpressionTag: new ExpressionTagPrinter(),
+  // MustacheTag: new MustacheTagPrinter(),
   Comment: new CommentPrinter(),
-  Slot: new ElementPrinter(),
-  SlotTemplate: new ElementPrinter(),
-  Title: new ElementPrinter(),
-  Head: new ElementPrinter(),
-  Options: new ElementPrinter(),
-  Window: new ElementPrinter(),
-  Document: new ElementPrinter(),
-  Body: new ElementPrinter(),
+  SlotElement: new ElementPrinter(),
   Attribute: NoOp,
-  EventHandler: NoOp,
-  Identifier: NoOp,
-  Binding: NoOp,
-  Class: NoOp,
-  StyleDirective: NoOp,
-  Action: NoOp,
-  Transition: NoOp,
-  Animation: NoOp,
-  IfBlock: new IfBlockPrinter(),
-  ElseBlock: new ElseBlockPrinter(),
-  EachBlock: new EachBlockPrinter(),
-  AwaitBlock: new AwaitBlockPrinter(),
-  PendingBlock: new PendingBlockPrinter(),
-  ThenBlock: new ThenBlockPrinter(),
-  CatchBlock: new CatchBlockPrinter(),
-  KeyBlock: new KeyBlockPrinter(),
-  RawMustacheTag: new RawMustacheTagPrinter(),
-  DebugTag: new DebugTagPrinter(),
-  ConstTag: new ConstTagPrinter()
+  SpreadAttribute: NoOp
+  // Slot: new ElementPrinter(),
+  // SlotTemplate: new ElementPrinter(),
+  // Title: new ElementPrinter(),
+  // Head: new ElementPrinter(),
+  // Options: new ElementPrinter(),
+  // Window: new ElementPrinter(),
+  // Document: new ElementPrinter(),
+  // Body: new ElementPrinter(),
+  // Attribute: NoOp,
+  // EventHandler: NoOp,
+  // Identifier: NoOp,
+  // Binding: NoOp,
+  // Class: NoOp,
+  // StyleDirective: NoOp,
+  // Action: NoOp,
+  // Transition: NoOp,
+  // Animation: NoOp,
+  // IfBlock: new IfBlockPrinter(),
+  // ElseBlock: new ElseBlockPrinter(),
+  // EachBlock: new EachBlockPrinter(),
+  // AwaitBlock: new AwaitBlockPrinter(),
+  // PendingBlock: new PendingBlockPrinter(),
+  // ThenBlock: new ThenBlockPrinter(),
+  // CatchBlock: new CatchBlockPrinter(),
+  // KeyBlock: new KeyBlockPrinter(),
+  // RawMustacheTag: new RawMustacheTagPrinter(),
+  // DebugTag: new DebugTagPrinter(),
+  // ConstTag: new ConstTagPrinter()
 };
 
 /**
@@ -490,7 +466,7 @@ export function getPrinters(): PrinterCollection {
 }
 
 export interface PrintHtmlParams {
-  rootNode: SvelteNode | LegacySvelteNode;
+  rootNode: AST.Root;
   ident?: PrinterIdentOptions;
   printers?: PrinterCollection;
 }
@@ -508,13 +484,18 @@ export default function printHtml(params: PrintHtmlParams) {
     result += text;
   };
 
-  const copy = _.cloneDeep(params.rootNode);
+  const copy = _.cloneDeep(params.rootNode.fragment);
 
-  walk(copy, {
-    enter: function (node: SvelteNode | LegacySvelteNode, parent: SvelteNode | LegacySvelteNode) {
+  let nestingLevel = 0;
+
+  walk(copy as unknown as Node, {
+    enter: function (node: SvelteNode, parent: SvelteNode) {
       if (node.skip === true) {
         return;
       }
+
+      console.log(Array(nestingLevel).join(' '), `${node.type} << ${parent?.type}`);
+
       const printer = printers[node.type];
       if (printer === undefined) {
         throw new Error(`Could not find printer for ${node.type}`);
@@ -525,11 +506,18 @@ export default function printHtml(params: PrintHtmlParams) {
         write,
         indent
       });
+
+      nestingLevel++;
     },
-    leave: function (node: any, parent: any) {
+    leave: function (node: SvelteNode, parent: SvelteNode) {
+      nestingLevel--;
+
       if (node.skip === true) {
         return;
       }
+
+      console.log(Array(nestingLevel).join(' '), `${node.type} << ${parent?.type}`);
+
       const printer = printers[node.type];
       printer.leave(node, parent, {
         _this: this,
