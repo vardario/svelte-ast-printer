@@ -1,4 +1,4 @@
-import type { AST } from 'svelte/src/compiler/types/template.js';
+import type { AST } from 'svelte/compiler';
 import { DefaultPrinterIdentOptions, PrinterIdentOptions, printHtml, printScript } from './index.js';
 
 export default function printAst(root: AST.Root, indent: PrinterIdentOptions = DefaultPrinterIdentOptions): string {

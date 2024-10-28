@@ -1,9 +1,51 @@
 import { generate } from 'astring';
 import _, { isArray } from 'lodash';
 import { walk } from 'estree-walker';
-import type { TemplateNode, AST, SvelteNode, Directive, ElementLike } from 'svelte/src/compiler/types/template.js';
+import { AST } from 'svelte/compiler';
 import { DefaultPrinterIdentOptions, PrinterIdentOptions } from './index.js';
+import { Node } from 'estree';
 export type Write = (text: string) => void;
+
+type ElementLike =
+  | AST.Component
+  | AST.TitleElement
+  | AST.SlotElement
+  | AST.RegularElement
+  | AST.SvelteBody
+  | AST.SvelteComponent
+  | AST.SvelteDocument
+  | AST.SvelteElement
+  | AST.SvelteFragment
+  | AST.SvelteHead
+  | AST.SvelteOptionsRaw
+  | AST.SvelteSelf
+  | AST.SvelteWindow;
+
+type Directive =
+  | AST.AnimateDirective
+  | AST.BindDirective
+  | AST.ClassDirective
+  | AST.LetDirective
+  | AST.OnDirective
+  | AST.StyleDirective
+  | AST.TransitionDirective
+  | AST.UseDirective;
+
+type Tag = AST.ExpressionTag | AST.HtmlTag | AST.ConstTag | AST.DebugTag | AST.RenderTag;
+type Block = AST.EachBlock | AST.IfBlock | AST.AwaitBlock | AST.KeyBlock | AST.SnippetBlock;
+
+type TemplateNode =
+  | AST.Root
+  | AST.Text
+  | Tag
+  | ElementLike
+  | AST.Attribute
+  | AST.SpreadAttribute
+  | Directive
+  | AST.Comment
+  | Block;
+
+type SvelteNode = Node | TemplateNode | AST.Fragment | any;
 
 const HTML_VOID_ELEMENTS = new Set([
   'area',
@@ -23,6 +65,7 @@ const HTML_VOID_ELEMENTS = new Set([
 ]);
 
 export interface PrinterContext {
+  /* eslint-disable unused-imports/no-unused-imports-ts */
   _this: any;
   write: Write;
   indent: PrinterIdentOptions;
@@ -36,12 +79,12 @@ export abstract class BaseHtmlNodePrinter {
 }
 
 class FragmentPrinter extends BaseHtmlNodePrinter {
-  enter(_: any, __: any, ___: PrinterContext) {}
-  leave(_: any, __: any, ___: PrinterContext) {}
+  enter(_: SvelteNode, __: SvelteNode, ___: PrinterContext) {}
+  leave(_: SvelteNode, __: SvelteNode, ___: PrinterContext) {}
 }
 
 class ExpressionTagPrinter extends BaseHtmlNodePrinter {
-  enter(node: AST.ExpressionTag, __: any, context: PrinterContext) {
+  enter(node: AST.ExpressionTag, __: SvelteNode, context: PrinterContext) {
     const { write } = context;
     write(`{${generate(node.expression, context.indent)}}`);
 
@@ -50,7 +93,7 @@ class ExpressionTagPrinter extends BaseHtmlNodePrinter {
       expression: undefined
     });
   }
-  leave(_: any, __: any, ___: PrinterContext) {}
+  leave(_: SvelteNode, __: SvelteNode, ___: PrinterContext) {}
 }
 
 class ElementPrinter extends BaseHtmlNodePrinter {
@@ -141,7 +184,7 @@ class ElementPrinter extends BaseHtmlNodePrinter {
     }
   }
 
-  enter(node: ElementLike, _: any, context: PrinterContext) {
+  enter(node: ElementLike, _: SvelteNode, context: PrinterContext) {
     const { write } = context;
 
     write(`<${node.name}`);
@@ -221,18 +264,18 @@ class TextPrinter extends BaseHtmlNodePrinter {
     }
   }
 
-  leave(_: TemplateNode, __: TemplateNode, ___: PrinterContext) {}
+  leave(_: SvelteNode, __: SvelteNode, ___: PrinterContext) {}
 }
 
 class NoOpPrinter extends BaseHtmlNodePrinter {
-  enter(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {
+  enter(node: SvelteNode, parent: SvelteNode, context: PrinterContext) {
     context._this.skip();
   }
-  leave(_: TemplateNode, __: TemplateNode, ___: PrinterContext) {}
+  leave(_: SvelteNode, __: SvelteNode, ___: PrinterContext) {}
 }
 
 class CommentPrinter extends BaseHtmlNodePrinter {
-  enter(node: AST.Comment, __: any, context: PrinterContext) {
+  enter(node: AST.Comment, __: SvelteNode, context: PrinterContext) {
     const { write } = context;
 
     const comment = _.trim(node.data);
@@ -242,7 +285,7 @@ class CommentPrinter extends BaseHtmlNodePrinter {
       write(context.indent.lineEnd);
     }
   }
-  leave(_: TemplateNode, __: TemplateNode, ___: PrinterContext) {}
+  leave(_: SvelteNode, __: SvelteNode, ___: PrinterContext) {}
 }
 
 class IfBlockPrinter extends BaseHtmlNodePrinter {
@@ -285,7 +328,7 @@ class IfBlockPrinter extends BaseHtmlNodePrinter {
 }
 
 class EachBlockPrinter extends BaseHtmlNodePrinter {
-  enter(node: AST.EachBlock, parent: TemplateNode, context: PrinterContext) {
+  enter(node: AST.EachBlock, parent: SvelteNode, context: PrinterContext) {
     const { write } = context;
 
     write(`{#each ${generate(node.expression, context.indent)}`);
@@ -311,14 +354,14 @@ class EachBlockPrinter extends BaseHtmlNodePrinter {
       key: undefined
     });
   }
-  leave(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {
+  leave(node: SvelteNode, parent: SvelteNode, context: PrinterContext) {
     const { write } = context;
     write('{/each}');
   }
 }
 
 class AwaitBlockPrinter extends BaseHtmlNodePrinter {
-  enter(node: AST.AwaitBlock, parent: TemplateNode, context: PrinterContext) {
+  enter(node: AST.AwaitBlock, parent: SvelteNode, context: PrinterContext) {
     const { write } = context;
     write(`{#await ${generate(node.expression, context.indent)}}`);
 
@@ -356,14 +399,14 @@ class AwaitBlockPrinter extends BaseHtmlNodePrinter {
       error: undefined
     });
   }
-  leave(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {
+  leave(node: SvelteNode, parent: SvelteNode, context: PrinterContext) {
     const { write } = context;
     write(`{/await}`);
   }
 }
 
 class KeyBlockPrinter extends BaseHtmlNodePrinter {
-  enter(node: AST.KeyBlock, parent: TemplateNode, context: PrinterContext) {
+  enter(node: AST.KeyBlock, parent: SvelteNode, context: PrinterContext) {
     const { write } = context;
     write(`{#key ${generate(node.expression, context.indent)}}`);
 
@@ -372,14 +415,14 @@ class KeyBlockPrinter extends BaseHtmlNodePrinter {
       expression: undefined
     });
   }
-  leave(node: TemplateNode, parent: TemplateNode, context: PrinterContext) {
+  leave(node: SvelteNode, parent: SvelteNode, context: PrinterContext) {
     const { write } = context;
     write('{/key}');
   }
 }
 
 class HtmlTagPrinter extends BaseHtmlNodePrinter {
-  enter(node: AST.HtmlTag, parent: TemplateNode, context: PrinterContext) {
+  enter(node: AST.HtmlTag, parent: SvelteNode, context: PrinterContext) {
     const { write } = context;
     write(`{@html ${generate(node.expression, context.indent)}}`);
     context._this.replace({
@@ -387,24 +430,24 @@ class HtmlTagPrinter extends BaseHtmlNodePrinter {
       expression: undefined
     });
   }
-  leave(_: TemplateNode, __: TemplateNode, ___: PrinterContext) {}
+  leave(_: SvelteNode, __: SvelteNode, ___: PrinterContext) {}
 }
 
 class DebugTagPrinter extends BaseHtmlNodePrinter {
-  enter(node: AST.DebugTag, parent: TemplateNode, context: PrinterContext) {
+  enter(node: AST.DebugTag, parent: SvelteNode, context: PrinterContext) {
     const { write } = context;
-    write(`{@debug ${node.identifiers.map((id: any) => generate(id, context.indent)).join(', ')}}`);
+    write(`{@debug ${node.identifiers.map(id => generate(id, context.indent)).join(', ')}}`);
 
     context._this.replace({
       ...node,
       identifiers: undefined
     });
   }
-  leave(_: TemplateNode, __: TemplateNode, ___: PrinterContext) {}
+  leave(_: SvelteNode, __: SvelteNode, ___: PrinterContext) {}
 }
 
 class ConstTagPrinter extends BaseHtmlNodePrinter {
-  enter(node: AST.ConstTag, parent: TemplateNode, context: PrinterContext) {
+  enter(node: AST.ConstTag, parent: SvelteNode, context: PrinterContext) {
     const { write } = context;
     write(`{@const${generate(node.declaration, context.indent).replace(/;|const/g, '')}}`);
     context._this.replace({
@@ -412,11 +455,11 @@ class ConstTagPrinter extends BaseHtmlNodePrinter {
       declaration: undefined
     });
   }
-  leave(_: TemplateNode, __: TemplateNode, ___: PrinterContext) {}
+  leave(_: SvelteNode, __: SvelteNode, ___: PrinterContext) {}
 }
 
 class SnippetBlockPrinter extends BaseHtmlNodePrinter {
-  enter(node: AST.SnippetBlock, parent: TemplateNode, context: PrinterContext) {
+  enter(node: AST.SnippetBlock, parent: SvelteNode, context: PrinterContext) {
     const { write } = context;
 
     write(
@@ -431,14 +474,14 @@ class SnippetBlockPrinter extends BaseHtmlNodePrinter {
       parameters: undefined
     });
   }
-  leave(node: AST.SnippetBlock, parent: TemplateNode, context: PrinterContext) {
+  leave(node: AST.SnippetBlock, parent: SvelteNode, context: PrinterContext) {
     const { write } = context;
     write(`{/snippet}`);
   }
 }
 
 class RenderTagPrinter extends BaseHtmlNodePrinter {
-  enter(node: AST.RenderTag, parent: TemplateNode, context: PrinterContext) {
+  enter(node: AST.RenderTag, parent: SvelteNode, context: PrinterContext) {
     const { write } = context;
 
     write(`{@render ${generate(node.expression, context.indent)}}`);
@@ -448,7 +491,7 @@ class RenderTagPrinter extends BaseHtmlNodePrinter {
       expression: undefined
     });
   }
-  leave(_: TemplateNode, __: TemplateNode, ___: PrinterContext) {}
+  leave(_: SvelteNode, __: SvelteNode, ___: PrinterContext) {}
 }
 
 const NoOp = new NoOpPrinter();

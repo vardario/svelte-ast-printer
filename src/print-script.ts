@@ -1,5 +1,5 @@
 import { generate } from 'astring';
-import type { AST } from 'svelte/src/compiler/types/index.js';
+import type { AST } from 'svelte/compiler';
 import { DefaultPrinterIdentOptions, PrinterIdentOptions } from './index.js';
 
 export default function printScript(root: AST.Root, indent: PrinterIdentOptions = DefaultPrinterIdentOptions): string {
