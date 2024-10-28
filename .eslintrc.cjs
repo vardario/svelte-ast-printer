@@ -27,6 +27,7 @@ module.exports = {
     ecmaVersion: 2021
   },
   rules: {
+    '@typescript-eslint/no-explicit-any': 'off',
     'unused-imports/no-unused-imports-ts': 'error',
     '@typescript-eslint/no-unused-vars': [
       'warn',
