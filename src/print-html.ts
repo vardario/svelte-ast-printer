@@ -415,6 +415,28 @@ class ConstTagPrinter extends BaseHtmlNodePrinter {
   leave(_: TemplateNode, __: TemplateNode, ___: PrinterContext) {}
 }
 
+class SnippetBlockPrinter extends BaseHtmlNodePrinter {
+  enter(node: AST.SnippetBlock, parent: TemplateNode, context: PrinterContext) {
+    const { write } = context;
+
+    write(
+      `{#snippet ${generate(node.expression, context.indent)}(${node.parameters
+        .map(param => generate(param, context.indent))
+        .join(', ')})}`
+    );
+
+    context._this.replace({
+      ...node,
+      expression: undefined,
+      parameters: undefined
+    });
+  }
+  leave(node: AST.SnippetBlock, parent: TemplateNode, context: PrinterContext) {
+    const { write } = context;
+    write(`{/snippet}`);
+  }
+}
+
 const NoOp = new NoOpPrinter();
 
 export type PrinterCollection = Record<string, BaseHtmlNodePrinter>;
@@ -452,7 +474,8 @@ const PRINTERS: PrinterCollection = {
   KeyBlock: new KeyBlockPrinter(),
   HtmlTag: new HtmlTagPrinter(),
   DebugTag: new DebugTagPrinter(),
-  ConstTag: new ConstTagPrinter()
+  ConstTag: new ConstTagPrinter(),
+  SnippetBlock: new SnippetBlockPrinter()
 };
 
 /**
@@ -470,8 +493,6 @@ export interface PrintHtmlParams {
 }
 
 function _printHtml(root: SvelteNode, context: Omit<PrinterContext, '_this'>) {
-  let nestingLevel = 0;
-
   walk(root, {
     enter: function (node: SvelteNode, parent: SvelteNode) {
       if (node.skip === true) {
@@ -484,12 +505,8 @@ function _printHtml(root: SvelteNode, context: Omit<PrinterContext, '_this'>) {
       }
 
       printer.enter(node, parent, { ...context, _this: this });
-
-      nestingLevel++;
     },
     leave: function (node: SvelteNode, parent: SvelteNode) {
-      nestingLevel--;
-
       if (node.skip === true) {
         return;
       }

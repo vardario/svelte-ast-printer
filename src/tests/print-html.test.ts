@@ -194,3 +194,10 @@ describe('Svelte Component', () => {
     );
   });
 });
+
+describe('Snippet', () => {
+  test('snippet', () => testHtmlPrinter('{#snippet figure()}<figure></figure>{/snippet}'));
+  test('snippet single parameter', () => testHtmlPrinter('{#snippet figure(param1)}<figure></figure>{/snippet}'));
+  test('snippet multi parameter', () =>
+    testHtmlPrinter('{#snippet figure(param1, param2)}<figure></figure>{/snippet}'));
+});
