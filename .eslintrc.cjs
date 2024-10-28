@@ -27,9 +27,6 @@ module.exports = {
     ecmaVersion: 2021
   },
   rules: {
-    '@typescript-eslint/no-explicit-any': 'off',
-    '@typescript-eslint/no-non-null-assertion': 'off',
-    'turbo/no-undeclared-env-vars': 'off',
     'unused-imports/no-unused-imports-ts': 'error',
     '@typescript-eslint/no-unused-vars': [
       'warn',

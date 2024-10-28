@@ -3,23 +3,24 @@ import { describe, expect, test } from 'vitest';
 import printScript from '../print-script';
 
 function testScriptPrinter(code: string, expectedResult?: string) {
-  const ast = parse(code);
-  const result = printScript({
-    script: ast.module ?? ast.instance!,
-    ident: {
-      indent: '',
-      lineEnd: ''
-    }
+  const root = parse(code);
+  const result = printScript(root, {
+    indent: '',
+    lineEnd: ''
   });
   expect(result, expectedResult ?? code);
 }
 
 describe('<script>', () => {
-  test('simple instance', () => {
+  test('instance', () => {
     testScriptPrinter('<script>let a;</script>');
   });
 
-  test('simple module', () => {
+  test('module', () => {
     testScriptPrinter('<script context="module">let a;</script>');
+  });
+
+  test('instance && module', () => {
+    testScriptPrinter('<script>let a;</script><script context="module">let a;</script>');
   });
 });

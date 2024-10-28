@@ -1,28 +1,25 @@
 import { generate } from 'astring';
-import { Script } from 'svelte/types/compiler/interfaces';
+import type { AST } from 'svelte/src/compiler/types/index.js';
 import { DefaultPrinterIdentOptions, PrinterIdentOptions } from './index.js';
 
-export interface PrintScriptParams {
-  script: Script;
-  ident?: PrinterIdentOptions;
-}
+export default function printScript(root: AST.Root, indent: PrinterIdentOptions = DefaultPrinterIdentOptions): string {
+  let result = '';
 
-export default function printScript(params: PrintScriptParams) {
-  let result = '<script';
-
-  const { script } = params;
-  const ident = {
-    ...DefaultPrinterIdentOptions,
-    ...params.ident
-  };
-
-  if (script.context !== 'default') {
-    result += ` context="${script.context}"`;
+  if (root.instance) {
+    result += '<script';
+    if (root.instance.context !== 'default') {
+      result += ` context="${root.instance.context}"`;
+    }
+    result += '>';
+    result += generate(root.instance.content, indent);
+    result += '</script>';
   }
 
-  result += '>';
-  result += generate(script.content, ident);
-  result += '</script>';
+  if (root.module) {
+    result += '<script context="module">';
+    result += generate(root.module.content, indent);
+    result += '</script>';
+  }
 
   return result;
 }
