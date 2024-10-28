@@ -157,40 +157,40 @@ describe('Template', () => {
   });
 });
 
-// describe('Svelte Component', () => {
-//   test('<svelte:self>', () => {
-//     testHtmlPrinter(
-//       '{#if count > 0}<p>counting down... {count}</p><svelte:self count={count - 1}/>{:else}<p>lift-off!</p>{/if}'
-//     );
-//   });
+describe('Svelte Component', () => {
+  test('<svelte:self>', () => {
+    testHtmlPrinter(
+      '{#if count > 0}<p>counting down... {count}</p><svelte:self count={count - 1}/>{:else}<p>lift-off!</p>{/if}'
+    );
+  });
 
-//   test('<svelte:window>', () => {
-//     testHtmlPrinter('<svelte:window on:event={handler}/>');
-//   });
+  test('<svelte:window>', () => {
+    testHtmlPrinter('<svelte:window on:event={handler}/>');
+  });
 
-//   test('<svelte:document>', () => {
-//     testHtmlPrinter('<svelte:document on:event={handler}/>');
-//   });
+  test('<svelte:document>', () => {
+    testHtmlPrinter('<svelte:document on:event={handler}/>');
+  });
 
-//   test('<svelte:body>', () => {
-//     testHtmlPrinter('<svelte:body on:event={handler}/>');
-//   });
+  test('<svelte:body>', () => {
+    testHtmlPrinter('<svelte:body on:event={handler}/>');
+  });
 
-//   test('<svelte:head>', () => {
-//     testHtmlPrinter('<svelte:head><link rel="stylesheet" href="/tutorial/dark-theme.css"/></svelte:head>');
-//   });
+  test('<svelte:head>', () => {
+    testHtmlPrinter('<svelte:head><link rel="stylesheet" href="/tutorial/dark-theme.css"></svelte:head>');
+  });
 
-//   test('<svelte:element>', () => {
-//     testHtmlPrinter('<svelte:element this={tag} on:click={handler}>Foo</svelte:element>');
-//   });
+  test('<svelte:element>', () => {
+    testHtmlPrinter('<svelte:element this={tag} on:click={handler}>Foo</svelte:element>');
+  });
 
-//   test('<svelte:component>', () => {
-//     testHtmlPrinter('<svelte:component this={currentSelection.component} foo={bar}/>');
-//   });
+  test('<svelte:component>', () => {
+    testHtmlPrinter('<svelte:component this={currentSelection.component} foo={bar}/>');
+  });
 
-//   test('<svelte:fragment>', () => {
-//     testHtmlPrinter(
-//       '<Widget><h1 slot="header">Hello</h1><svelte:fragment slot="footer"><p>All rights reserved.</p><p>Copyright (c) 2019 Svelte Industries</p></svelte:fragment></Widget>'
-//     );
-//   });
-// });
+  test('<svelte:fragment>', () => {
+    testHtmlPrinter(
+      '<Widget><h1 slot="header">Hello</h1><svelte:fragment slot="footer"><p>All rights reserved.</p><p>Copyright (c) 2019 Svelte Industries</p></svelte:fragment></Widget>'
+    );
+  });
+});
