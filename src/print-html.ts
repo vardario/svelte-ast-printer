@@ -1,5 +1,5 @@
 import { generate } from 'astring';
-import *  as _ from 'lodash';
+import _ from 'lodash';
 import { walk } from 'estree-walker';
 import { AST } from 'svelte/compiler';
 import { DefaultPrinterIdentOptions, PrinterIdentOptions } from './index.js';
