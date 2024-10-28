@@ -201,3 +201,10 @@ describe('Snippet', () => {
   test('snippet multi parameter', () =>
     testHtmlPrinter('{#snippet figure(param1, param2)}<figure></figure>{/snippet}'));
 });
+
+describe('render', () => {
+  test('render simple call', () => testHtmlPrinter('{@render sum(1, 2)}'));
+  test('render expression', () => testHtmlPrinter('{@render (cool ? coolSnippet : lameSnippet)()}'));
+
+  test('render optional', () => testHtmlPrinter('{@render children?.()}'));
+});

@@ -437,6 +437,20 @@ class SnippetBlockPrinter extends BaseHtmlNodePrinter {
   }
 }
 
+class RenderTagPrinter extends BaseHtmlNodePrinter {
+  enter(node: AST.RenderTag, parent: TemplateNode, context: PrinterContext) {
+    const { write } = context;
+
+    write(`{@render ${generate(node.expression, context.indent)}}`);
+
+    context._this.replace({
+      ...node,
+      expression: undefined
+    });
+  }
+  leave(_: TemplateNode, __: TemplateNode, ___: PrinterContext) {}
+}
+
 const NoOp = new NoOpPrinter();
 
 export type PrinterCollection = Record<string, BaseHtmlNodePrinter>;
@@ -475,7 +489,8 @@ const PRINTERS: PrinterCollection = {
   HtmlTag: new HtmlTagPrinter(),
   DebugTag: new DebugTagPrinter(),
   ConstTag: new ConstTagPrinter(),
-  SnippetBlock: new SnippetBlockPrinter()
+  SnippetBlock: new SnippetBlockPrinter(),
+  RenderTag: new RenderTagPrinter()
 };
 
 /**
