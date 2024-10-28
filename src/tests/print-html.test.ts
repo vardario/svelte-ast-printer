@@ -3,13 +3,10 @@ import { describe, expect, test } from 'vitest';
 import printHtml from '../print-html';
 
 function testHtmlPrinter(code: string, expectedResult?: string) {
-  const ast = parse(code, { modern: true });
-  const result = printHtml({
-    rootNode: ast,
-    ident: {
-      indent: '',
-      lineEnd: ''
-    }
+  const root = parse(code, { modern: true });
+  const result = printHtml(root, {
+    indent: '',
+    lineEnd: ''
   });
   expect(result).toBe(expectedResult ?? code);
   //double check semantic correctness

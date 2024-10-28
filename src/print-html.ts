@@ -501,12 +501,6 @@ export function getPrinters(): PrinterCollection {
   return _.cloneDeep(PRINTERS);
 }
 
-export interface PrintHtmlParams {
-  rootNode: AST.Root;
-  ident?: PrinterIdentOptions;
-  printers?: PrinterCollection;
-}
-
 function _printHtml(root: SvelteNode, context: Omit<PrinterContext, '_this'>) {
   walk(root, {
     enter: function (node: SvelteNode, parent: SvelteNode) {
@@ -532,19 +526,14 @@ function _printHtml(root: SvelteNode, context: Omit<PrinterContext, '_this'>) {
   });
 }
 
-export default function printHtml(params: PrintHtmlParams) {
+export default function printHtml(root: AST.Root, indent: PrinterIdentOptions = DefaultPrinterIdentOptions) {
   let result = '';
 
   const write = (text: string) => {
     result += text;
   };
 
-  const indent = {
-    ...DefaultPrinterIdentOptions,
-    ...params.ident
-  };
-
-  const fragment = _.cloneDeep(params.rootNode.fragment);
+  const fragment = _.cloneDeep(root.fragment);
   _printHtml(fragment, { indent, write });
   return _.trim(result);
 }
