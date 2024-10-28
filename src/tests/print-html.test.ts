@@ -42,48 +42,40 @@ describe('slots', () => {
   test('slow with expression attribute', () => testHtmlPrinter('<slot prop={value}/>'));
 });
 
-// describe('Element directives', () => {
-//   test('on:eventname', () => testHtmlPrinter('<input on:change={onChange}/>'));
-//   test('bind:property', () => testHtmlPrinter('<input bind:value/>', '<input bind:value={value}/>'));
-//   test('bind:group', () => testHtmlPrinter('<input type="radio" bind:group={tortilla} value="Plain"/>'));
-
-//   test('bind:this', () => testHtmlPrinter('<canvas bind:this={canvasElement}/>'));
-
-//   test('class:name', () => {
-//     testHtmlPrinter('<div class:active={active}/>');
-//     testHtmlPrinter('<div class:active/>', '<div class:active={active}/>');
-//   });
-
-//   test('style:property', () => {
-//     testHtmlPrinter('<div style:color/>');
-//     testHtmlPrinter('<div style:color="red"/>');
-//     testHtmlPrinter('<div style:color style:width="12rem" style:background-color={darkMode ? "black" : "white"}/>');
-//   });
-
-//   test('use:action', () => {
-//     testHtmlPrinter('<div use:foo={bar}/>');
-//     testHtmlPrinter('<div use:foo/>');
-//   });
-
-//   test('transition:fn', () => {
-//     testHtmlPrinter('<div transition:fade/>');
-//     testHtmlPrinter('<div transition:fade={{duration: 2000}}/>');
-//   });
-
-//   test('in/out:fn', () => {
-//     testHtmlPrinter('<div in:fly out:fade>flies in, fades out</div>');
-//     testHtmlPrinter('<div in:fly={{duration: 2000}} out:fade{{duration: 2000}}>flies in, fades out</div>');
-//   });
-
-//   test('animate:fn', () => {
-//     testHtmlPrinter('<li animate:flip={{delay: 500}}>{item}</li>');
-//     testHtmlPrinter('<div animate:whizz>{item}</div>');
-//   });
-
-//   test('let:variable', () => {
-//     testHtmlPrinter('<checkbox let:isChecked/>');
-//   });
-// });
+describe('Element directives', () => {
+    test('on:eventname', () => testHtmlPrinter('<input on:change={onChange}>'));
+    test('bind:property', () => testHtmlPrinter('<input bind:value/>', '<input bind:value={value}>'));
+    test('bind:group', () => testHtmlPrinter('<input type="radio" bind:group={tortilla} value="Plain">'));
+    test('bind:this', () => testHtmlPrinter('<canvas bind:this={canvasElement}></canvas>'));
+    test('class:name', () => {
+      testHtmlPrinter('<div class:active={active}></div>','<div class:active={active}></div>');
+      testHtmlPrinter('<div class:active></div>', '<div class:active={active}></div>');
+    });
+    test('style:property', () => {
+      testHtmlPrinter('<div style:color></div>');
+      testHtmlPrinter('<div style:color="red"></div>');
+      testHtmlPrinter('<div style:color style:width="12rem" style:background-color={darkMode ? "black" : "white"}></div>');
+    });
+    test('use:action', () => {
+      testHtmlPrinter('<div use:foo={bar}></div>');
+      testHtmlPrinter('<div use:foo></div>');
+    });
+    test('transition:fn', () => {
+      testHtmlPrinter('<div transition:fade></div>');
+      testHtmlPrinter('<div transition:fade={{duration: 2000}}></div>');
+    });
+    test('in/out:fn', () => {
+      testHtmlPrinter('<div in:fly out:fade>flies in, fades out</div>');
+      testHtmlPrinter('<div in:fly={{duration: 2000}} out:fade={{duration: 2000}}>flies in, fades out</div>');
+    });
+    test('animate:fn', () => {
+      testHtmlPrinter('<li animate:flip={{delay: 500}}>{item}</li>');
+      testHtmlPrinter('<div animate:whizz>{item}</div>');
+    });
+    test('let:variable', () => {
+      testHtmlPrinter('<input type="checkbox" let:checked>');
+    });
+});
 
 // describe('Template', () => {
 //   test('{#if ...}', () => {

@@ -132,20 +132,20 @@ class ElementPrinter extends BaseHtmlNodePrinter {
             write(` style:${attribute.name}={${generate(value, context.indent)}}`);
           }
         } else {
-          write(` style:${attribute.name}={${generate(attribute.value, context.indent)}}`);
+          write(` style:${attribute.name}={${generate(attribute.value.expression, context.indent)}}`);
         }
       }
     } else if (attribute.type === 'TransitionDirective') {
       const transition = () => {
-        if (attribute.intro) {
-          return 'in:';
+        if (attribute.intro && !attribute.outro) {
+          return 'in';
         }
 
-        if (attribute.outro) {
-          return 'out:';
+        if (attribute.outro && !attribute.intro) {
+          return 'out';
         }
 
-        return 'transition:';
+        return 'transition';
       };
 
       if (attribute.expression) {
@@ -426,7 +426,15 @@ const PRINTERS: PrinterCollection = {
   Comment: new CommentPrinter(),
   SlotElement: new ElementPrinter(),
   Attribute: NoOp,
-  SpreadAttribute: NoOp
+  SpreadAttribute: NoOp,
+  OnDirective: NoOp,
+  BindDirective: NoOp,
+  ClassDirective: NoOp,
+  StyleDirective: NoOp,
+  UseDirective: NoOp,
+  TransitionDirective: NoOp,
+  AnimateDirective: NoOp,
+  LetDirective: NoOp,
   // Slot: new ElementPrinter(),
   // SlotTemplate: new ElementPrinter(),
   // Title: new ElementPrinter(),
