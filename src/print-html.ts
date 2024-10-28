@@ -1,5 +1,5 @@
 import { generate } from 'astring';
-import _, { isArray } from 'lodash';
+import *  as _ from 'lodash';
 import { walk } from 'estree-walker';
 import { AST } from 'svelte/compiler';
 import { DefaultPrinterIdentOptions, PrinterIdentOptions } from './index.js';
@@ -105,7 +105,7 @@ class ElementPrinter extends BaseHtmlNodePrinter {
         return;
       }
 
-      if (isArray(attribute.value)) {
+      if (_.isArray(attribute.value)) {
         const [value] = attribute.value;
 
         if (value.type === 'Text') {
@@ -146,7 +146,7 @@ class ElementPrinter extends BaseHtmlNodePrinter {
       if (attribute.value === true) {
         write(` style:${attribute.name}`);
       } else {
-        if (isArray(attribute.value)) {
+        if (_.isArray(attribute.value)) {
           const [value] = attribute.value;
           if (value.type === 'Text') {
             write(` style:${attribute.name}="${value.data}"`);
