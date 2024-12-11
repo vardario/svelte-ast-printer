@@ -175,6 +175,8 @@ describe('Svelte Component', () => {
 
   test('<svelte:head>', () => {
     testHtmlPrinter('<svelte:head><link rel="stylesheet" href="/tutorial/dark-theme.css"></svelte:head>');
+    testHtmlPrinter('<svelte:head><title>title</title></svelte:head>');
+    testHtmlPrinter('<svelte:head><meta name="description" content="This is where the description goes for SEO"></svelte:head>');
   });
 
   test('<svelte:element>', () => {
