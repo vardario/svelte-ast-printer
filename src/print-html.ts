@@ -514,6 +514,7 @@ const PRINTERS: PrinterCollection = {
   SvelteElement: new ElementPrinter(),
   SvelteComponent: new ElementPrinter(),
   SvelteFragment: new ElementPrinter(),
+  TitleElement: new ElementPrinter(),
   Attribute: NoOp,
   SpreadAttribute: NoOp,
   OnDirective: NoOp,
