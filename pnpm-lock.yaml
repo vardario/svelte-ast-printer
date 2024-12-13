@@ -30,9 +30,12 @@ importers:
       '@typescript-eslint/parser':
         specifier: ^6.11.0
         version: 6.12.0(eslint@8.54.0)(typescript@5.0.4)
+      '@vardario/astring-ts-generator':
+        specifier: ^1.1.0
+        version: 1.1.0(astring@1.9.0)
       astring:
-        specifier: ^1.8.5
-        version: 1.8.5
+        specifier: ^1.9.0
+        version: 1.9.0
       eslint:
         specifier: ^8.54.0
         version: 8.54.0
@@ -574,6 +577,11 @@ packages:
   '@ungap/structured-clone@1.2.0':
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==}
 
+  '@vardario/astring-ts-generator@1.1.0':
+    resolution: {integrity: sha512-gLIXskiw5/79UjvXL8BC7ORYJ/5xYKwys2e248bhrm06QzEXnNSTuEaDW3ZxfYN+04nAuAbONdbHXNeD9GCGbg==}
+    peerDependencies:
+      astring: ^1.9.0
+
   '@vitest/expect@2.1.3':
     resolution: {integrity: sha512-SNBoPubeCJhZ48agjXruCI57DvxcsivVDdWz+SSsmjTT4QN/DfHk3zB/xKsJqMs26bLZ/pNRLnCf0j679i0uWQ==}
 
@@ -695,8 +703,8 @@ packages:
     resolution: {integrity: sha512-Izi8RQcffqCeNVgFigKli1ssklIbpHnCYc6AknXGYoB6grJqyeby7jv12JUQgmTAnIDnbck1uxksT4dzN3PWBA==}
     engines: {node: '>=12'}
 
-  astring@1.8.5:
-    resolution: {integrity: sha512-TuBbdn7jWVzf8dmFGTaRpW8qgANtWLi1qJLnkfGO5uVf6jf9f/F4B1H35tnOI+qVYZo3p3i8WZlbZOuPAE0wEA==}
+  astring@1.9.0:
+    resolution: {integrity: sha512-LElXdjswlqjWrPpJFg1Fx4wpkOCxj1TDHlSV4PlaRxHGWko024xICaa97ZkMfs6DRKlCguiAI+rbXv5GWwXIkg==}
     hasBin: true
 
   author-regex@1.0.0:
@@ -2668,6 +2676,10 @@ snapshots:
 
   '@ungap/structured-clone@1.2.0': {}
 
+  '@vardario/astring-ts-generator@1.1.0(astring@1.9.0)':
+    dependencies:
+      astring: 1.9.0
+
   '@vitest/expect@2.1.3':
     dependencies:
       '@vitest/spy': 2.1.3
@@ -2784,7 +2796,7 @@ snapshots:
 
   assertion-error@2.0.1: {}
 
-  astring@1.8.5: {}
+  astring@1.9.0: {}
 
   author-regex@1.0.0: {}
 
