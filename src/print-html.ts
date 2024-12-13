@@ -3,49 +3,9 @@ import _ from 'lodash';
 import { walk } from 'estree-walker';
 import { AST } from 'svelte/compiler';
 import { DefaultPrinterIdentOptions, PrinterIdentOptions } from './index.js';
-import { Node } from 'estree';
+import { ElementLike, printAttributes, SvelteNode } from './utils.js';
+
 export type Write = (text: string) => void;
-
-type ElementLike =
-  | AST.Component
-  | AST.TitleElement
-  | AST.SlotElement
-  | AST.RegularElement
-  | AST.SvelteBody
-  | AST.SvelteComponent
-  | AST.SvelteDocument
-  | AST.SvelteElement
-  | AST.SvelteFragment
-  | AST.SvelteHead
-  | AST.SvelteOptionsRaw
-  | AST.SvelteSelf
-  | AST.SvelteWindow;
-
-type Directive =
-  | AST.AnimateDirective
-  | AST.BindDirective
-  | AST.ClassDirective
-  | AST.LetDirective
-  | AST.OnDirective
-  | AST.StyleDirective
-  | AST.TransitionDirective
-  | AST.UseDirective;
-
-type Tag = AST.ExpressionTag | AST.HtmlTag | AST.ConstTag | AST.DebugTag | AST.RenderTag;
-type Block = AST.EachBlock | AST.IfBlock | AST.AwaitBlock | AST.KeyBlock | AST.SnippetBlock;
-
-type TemplateNode =
-  | AST.Root
-  | AST.Text
-  | Tag
-  | ElementLike
-  | AST.Attribute
-  | AST.SpreadAttribute
-  | Directive
-  | AST.Comment
-  | Block;
-
-type SvelteNode = Node | TemplateNode | AST.Fragment | any;
 
 const HTML_VOID_ELEMENTS = new Set([
   'area',
@@ -97,93 +57,6 @@ class ExpressionTagPrinter extends BaseHtmlNodePrinter {
 }
 
 class ElementPrinter extends BaseHtmlNodePrinter {
-  private printAttributes(attribute: AST.Attribute | AST.SpreadAttribute | Directive, context: PrinterContext) {
-    const { write } = context;
-
-    if (attribute.type === 'Attribute') {
-      if (attribute.value === true) {
-        return;
-      }
-
-      if (_.isArray(attribute.value)) {
-        const [value] = attribute.value;
-
-        if (value.type === 'Text') {
-          write(` ${attribute.name}="${value.data}"`);
-        }
-
-        if (value.type === 'ExpressionTag') {
-          write(` ${attribute.name}={${generate(value.expression, context.indent)}}`);
-        }
-      } else {
-        write(` ${attribute.name}={${generate(attribute.value.expression, context.indent)}}`);
-      }
-    } else if (attribute.type === 'SpreadAttribute') {
-      write(` {...${generate(attribute.expression, context.indent)}}`);
-    } else if (attribute.type === 'AnimateDirective') {
-      if (attribute.expression) {
-        write(` animate:${attribute.name}={${generate(attribute.expression, context.indent)}}`);
-      } else {
-        write(` animate:${attribute.name}`);
-      }
-    } else if (attribute.type === 'BindDirective') {
-      write(` bind:${attribute.name}={${generate(attribute.expression, context.indent)}}`);
-    } else if (attribute.type === 'ClassDirective') {
-      write(` class:${attribute.name}={${generate(attribute.expression, context.indent)}}`);
-    } else if (attribute.type === 'LetDirective') {
-      if (attribute.expression) {
-        write(` let:${attribute.name}={${generate(attribute.expression, context.indent)}}`);
-      } else {
-        write(` let:${attribute.name}`);
-      }
-    } else if (attribute.type === 'OnDirective') {
-      if (attribute.expression) {
-        write(` on:${attribute.name}={${generate(attribute.expression, context.indent)}}`);
-      } else {
-        write(` on:${attribute.name}`);
-      }
-    } else if (attribute.type === 'StyleDirective') {
-      if (attribute.value === true) {
-        write(` style:${attribute.name}`);
-      } else {
-        if (_.isArray(attribute.value)) {
-          const [value] = attribute.value;
-          if (value.type === 'Text') {
-            write(` style:${attribute.name}="${value.data}"`);
-          } else {
-            write(` style:${attribute.name}={${generate(value, context.indent)}}`);
-          }
-        } else {
-          write(` style:${attribute.name}={${generate(attribute.value.expression, context.indent)}}`);
-        }
-      }
-    } else if (attribute.type === 'TransitionDirective') {
-      const transition = () => {
-        if (attribute.intro && !attribute.outro) {
-          return 'in';
-        }
-
-        if (attribute.outro && !attribute.intro) {
-          return 'out';
-        }
-
-        return 'transition';
-      };
-
-      if (attribute.expression) {
-        write(` ${transition()}:${attribute.name}={${generate(attribute.expression, context.indent)}}`);
-      } else {
-        write(` ${transition()}:${attribute.name}`);
-      }
-    } else if (attribute.type === 'UseDirective') {
-      if (attribute.expression) {
-        write(` use:${attribute.name}={${generate(attribute.expression, context.indent)}}`);
-      } else {
-        write(` use:${attribute.name}`);
-      }
-    }
-  }
-
   enter(node: ElementLike, _: SvelteNode, context: PrinterContext) {
     const { write } = context;
 
@@ -207,7 +80,7 @@ class ElementPrinter extends BaseHtmlNodePrinter {
       });
     }
 
-    node.attributes.forEach(attribute => this.printAttributes(attribute, context));
+    node.attributes.forEach(attribute => printAttributes(attribute, context));
 
     if (
       (node.type === 'Component' ||
