@@ -2,6 +2,7 @@ import { AST } from 'svelte/compiler';
 import { PrinterContext } from './print-html';
 import { generate } from 'astring';
 import _ from 'lodash';
+import { Node } from 'estree';
 
 export type ElementLike =
   | AST.Component
