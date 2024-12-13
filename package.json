@@ -23,12 +23,13 @@
     "repo-clean": "git clean -xdf -e .env"
   },
   "dependencies": {
+    "@vardario/astring-ts-generator": "^1.1.0",
     "commander": "^10.0.1",
-    "estree-walker": "^3.0.3"
+    "estree-walker": "^3.0.3",
+    "astring": "^1.9.0",
+    "lodash": "^4.17.21"
   },
   "peerDependencies": {
-    "astring": "1.x",
-    "lodash": "4.x",
     "svelte": "5.x"
   },
   "devDependencies": {
@@ -37,8 +38,6 @@
     "@types/node": "^20.2.5",
     "@typescript-eslint/eslint-plugin": "^6.11.0",
     "@typescript-eslint/parser": "^6.11.0",
-    "@vardario/astring-ts-generator": "^1.1.0",
-    "astring": "^1.9.0",
     "eslint": "^8.54.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-unused-imports": "^3.0.0",
