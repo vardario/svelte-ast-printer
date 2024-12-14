@@ -8,6 +8,7 @@ function testScriptPrinter(code: string, expectedResult?: string) {
     indent: '',
     lineEnd: ''
   });
+
   expect(result).toBe(expectedResult ?? code);
 }
 
@@ -26,5 +27,11 @@ describe('<script>', () => {
 
   test('typescript instance', () => {
     testScriptPrinter('<script lang="ts">interface A {}const a: number = 0;</script>');
+  });
+
+  test('default import', () => {
+    testScriptPrinter(
+      `<script>import WifiSlashIcon from '$lib/components/icons/wifi-slash-icon.svelte';import {i18n} from '$lib/utils';</script>`
+    );
   });
 });
