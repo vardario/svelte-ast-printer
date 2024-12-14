@@ -54,6 +54,7 @@ export function printAttributes(attribute: AST.Attribute | AST.SpreadAttribute |
 
   if (attribute.type === 'Attribute') {
     if (attribute.value === true) {
+      write(` ${attribute.name}`);
       return;
     }
 
