@@ -23,6 +23,8 @@ describe('Tags', () => {
   test('Mustache Tag element', () => testHtmlPrinter('<span>{temp}</span>'));
 
   test('comment', () => testHtmlPrinter('<!-- this is a comment! -->'));
+
+  test('boolean attributes', () => testHtmlPrinter('<input hidden>'));
 });
 
 describe('Tags with attributes', () => {
