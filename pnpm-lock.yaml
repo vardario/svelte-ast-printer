@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@vardario/astring-ts-generator':
-        specifier: ^1.1.1
-        version: 1.1.1(astring@1.9.0)
+        specifier: ^1.1.2
+        version: 1.1.2(astring@1.9.0)
       astring:
         specifier: ^1.9.0
         version: 1.9.0
@@ -575,8 +575,8 @@ packages:
   '@ungap/structured-clone@1.2.1':
     resolution: {integrity: sha512-fEzPV3hSkSMltkw152tJKNARhOupqbH96MZWyRjNaYZOMIzbrTeQDG+MTc6Mr2pgzFQzFxAfmhGDNP5QK++2ZA==}
 
-  '@vardario/astring-ts-generator@1.1.1':
-    resolution: {integrity: sha512-RGDZeYbAeebfaXR6qGux9spMFEU3GBFyclMUXvAJcfWNcNz23ZASXxmcfg2A3Iz3PareTvvpLYSOa3XSIJjNVA==}
+  '@vardario/astring-ts-generator@1.1.2':
+    resolution: {integrity: sha512-zCf595GZIXCZzdc1UhiLlsWu0W/dglQtsg+7Rmf1axhGxnaWo8LxHAyNw/8rushTRZk1chgrvobGMJO8tjmfng==}
     peerDependencies:
       astring: ^1.9.0
 
@@ -2651,7 +2651,7 @@ snapshots:
 
   '@ungap/structured-clone@1.2.1': {}
 
-  '@vardario/astring-ts-generator@1.1.1(astring@1.9.0)':
+  '@vardario/astring-ts-generator@1.1.2(astring@1.9.0)':
     dependencies:
       astring: 1.9.0
 

@@ -23,7 +23,7 @@
     "repo-clean": "git clean -xdf -e .env"
   },
   "dependencies": {
-    "@vardario/astring-ts-generator": "^1.1.1",
+    "@vardario/astring-ts-generator": "^1.1.2",
     "astring": "^1.9.0",
     "commander": "^10.0.1",
     "estree-walker": "^3.0.3",
