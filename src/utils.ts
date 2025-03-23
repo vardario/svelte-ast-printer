@@ -1,6 +1,7 @@
 import { AST } from 'svelte/compiler';
 import { PrinterContext } from './print-html';
 import { generate } from 'astring';
+import generator from '@vardario/astring-ts-generator';
 import _ from 'lodash';
 import { Node } from 'estree';
 
@@ -52,6 +53,10 @@ export function identLiteral(level: number, ident: string) {
 export function printAttributes(attribute: AST.Attribute | AST.SpreadAttribute | Directive, context: PrinterContext) {
   const { write } = context;
 
+  const _generate = (node: SvelteNode) => {
+    return generate(node, { ...context.indent, generator });
+  };
+
   if (attribute.type === 'Attribute') {
     if (attribute.value === true) {
       write(` ${attribute.name}`);
@@ -66,32 +71,32 @@ export function printAttributes(attribute: AST.Attribute | AST.SpreadAttribute |
       }
 
       if (value.type === 'ExpressionTag') {
-        write(` ${attribute.name}={${generate(value.expression, context.indent)}}`);
+        write(` ${attribute.name}={${_generate(value.expression)}}`);
       }
     } else {
-      write(` ${attribute.name}={${generate(attribute.value.expression, context.indent)}}`);
+      write(` ${attribute.name}={${_generate(attribute.value.expression)}}`);
     }
   } else if (attribute.type === 'SpreadAttribute') {
-    write(` {...${generate(attribute.expression, context.indent)}}`);
+    write(` {...${_generate(attribute.expression)}}`);
   } else if (attribute.type === 'AnimateDirective') {
     if (attribute.expression) {
-      write(` animate:${attribute.name}={${generate(attribute.expression, context.indent)}}`);
+      write(` animate:${attribute.name}={${_generate(attribute.expression)}}`);
     } else {
       write(` animate:${attribute.name}`);
     }
   } else if (attribute.type === 'BindDirective') {
-    write(` bind:${attribute.name}={${generate(attribute.expression, context.indent)}}`);
+    write(` bind:${attribute.name}={${_generate(attribute.expression)}}`);
   } else if (attribute.type === 'ClassDirective') {
-    write(` class:${attribute.name}={${generate(attribute.expression, context.indent)}}`);
+    write(` class:${attribute.name}={${_generate(attribute.expression)}}`);
   } else if (attribute.type === 'LetDirective') {
     if (attribute.expression) {
-      write(` let:${attribute.name}={${generate(attribute.expression, context.indent)}}`);
+      write(` let:${attribute.name}={${_generate(attribute.expression)}}`);
     } else {
       write(` let:${attribute.name}`);
     }
   } else if (attribute.type === 'OnDirective') {
     if (attribute.expression) {
-      write(` on:${attribute.name}={${generate(attribute.expression, context.indent)}}`);
+      write(` on:${attribute.name}={${_generate(attribute.expression)}}`);
     } else {
       write(` on:${attribute.name}`);
     }
@@ -104,10 +109,10 @@ export function printAttributes(attribute: AST.Attribute | AST.SpreadAttribute |
         if (value.type === 'Text') {
           write(` style:${attribute.name}="${value.data}"`);
         } else {
-          write(` style:${attribute.name}={${generate(value, context.indent)}}`);
+          write(` style:${attribute.name}={${_generate(value)}}`);
         }
       } else {
-        write(` style:${attribute.name}={${generate(attribute.value.expression, context.indent)}}`);
+        write(` style:${attribute.name}={${_generate(attribute.value.expression)}}`);
       }
     }
   } else if (attribute.type === 'TransitionDirective') {
@@ -124,13 +129,13 @@ export function printAttributes(attribute: AST.Attribute | AST.SpreadAttribute |
     };
 
     if (attribute.expression) {
-      write(` ${transition()}:${attribute.name}={${generate(attribute.expression, context.indent)}}`);
+      write(` ${transition()}:${attribute.name}={${_generate(attribute.expression)}}`);
     } else {
       write(` ${transition()}:${attribute.name}`);
     }
   } else if (attribute.type === 'UseDirective') {
     if (attribute.expression) {
-      write(` use:${attribute.name}={${generate(attribute.expression, context.indent)}}`);
+      write(` use:${attribute.name}={${_generate(attribute.expression)}}`);
     } else {
       write(` use:${attribute.name}`);
     }

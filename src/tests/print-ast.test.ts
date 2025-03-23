@@ -20,4 +20,9 @@ describe('print-ast', () => {
   test('with module', () => {
     testPrintAst('<script>let a;</script><script context="module">let b;</script><main>Hello,World</main>');
   });
+
+  test('typescript in template', () => {
+    testPrintAst('<script lang="ts">let a: string | undefined;</script><main class={a!}>Hello,World</main>');
+    testPrintAst('<script lang="ts">let a: string | undefined;</script><main class={(a as any)}>Hello,World</main>');
+  });
 });
