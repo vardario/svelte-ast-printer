@@ -176,7 +176,8 @@ class IfBlockPrinter extends BaseHtmlNodePrinter {
     }
 
     if (node.alternate) {
-      const hasElseIf = node.alternate.nodes.some(node => node.type === 'IfBlock');
+      // Only an `{:else if}` is an IfBlock marked `elseif`; an `{:else}` branch can contain ordinary `{#if}` blocks.
+      const hasElseIf = node.alternate.nodes.some(node => node.type === 'IfBlock' && node.elseif);
       if (!hasElseIf) {
         write('{:else}');
       }
