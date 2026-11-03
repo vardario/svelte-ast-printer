@@ -64,15 +64,15 @@ export function printAttributes(attribute: AST.Attribute | AST.SpreadAttribute |
     }
 
     if (_.isArray(attribute.value)) {
-      const [value] = attribute.value;
-
-      if (value.type === 'Text') {
-        write(` ${attribute.name}="${value.data}"`);
+      // `name={expression}`, or a quoted value of text and expressions (`class="a {b} c"`): every part is printed.
+      if (attribute.value.length === 1 && attribute.value[0].type === 'ExpressionTag') {
+        write(` ${attribute.name}={${_generate(attribute.value[0].expression)}}`);
+        return;
       }
-
-      if (value.type === 'ExpressionTag') {
-        write(` ${attribute.name}={${_generate(value.expression)}}`);
-      }
+      const parts = attribute.value.map(value =>
+        value.type === 'Text' ? value.raw : `{${_generate(value.expression)}}`
+      );
+      write(` ${attribute.name}="${parts.join('')}"`);
     } else {
       write(` ${attribute.name}={${_generate(attribute.value.expression)}}`);
     }
@@ -85,7 +85,13 @@ export function printAttributes(attribute: AST.Attribute | AST.SpreadAttribute |
       write(` animate:${attribute.name}`);
     }
   } else if (attribute.type === 'BindDirective') {
-    write(` bind:${attribute.name}={${_generate(attribute.expression)}}`);
+    // Function bindings (`bind:value={get, set}`) must not be wrapped in parentheses.
+    const expression = attribute.expression as SvelteNode & { type: string; expressions?: SvelteNode[] };
+    const value =
+      expression.type === 'SequenceExpression' && expression.expressions
+        ? expression.expressions.map(_generate).join(', ')
+        : _generate(attribute.expression);
+    write(` bind:${attribute.name}={${value}}`);
   } else if (attribute.type === 'ClassDirective') {
     write(` class:${attribute.name}={${_generate(attribute.expression)}}`);
   } else if (attribute.type === 'LetDirective') {

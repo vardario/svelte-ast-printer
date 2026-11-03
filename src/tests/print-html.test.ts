@@ -105,6 +105,12 @@ describe('Template', () => {
     testHtmlPrinter('{#if a > 100}<p>a</p>{:else if a > 200}<p>b</p>{:else if a > 300}<p>c</p>{/if}');
   });
 
+  test('{:else} branch that contains an {#if} block', () => {
+    testHtmlPrinter('{#if a}<p>a</p>{:else}<p>b</p>{#if c}<p>c</p>{/if}{/if}');
+    testHtmlPrinter('{#if a}<p>a</p>{:else if b}<p>b</p>{:else}{#if c}<p>c</p>{/if}<p>d</p>{/if}');
+    testHtmlPrinter('{#if a}<p>a</p>{:else if b}{#if c}<p>c</p>{:else}<p>d</p>{/if}{:else}<p>e</p>{/if}');
+  });
+
   test('{#if expression}...{:else if expression}...{:else if expression}...{:else}...{/if}', () => {
     testHtmlPrinter('{#if a > 100}<p>a</p>{:else if a > 200}<p>b</p>{:else if a > 300}<p>c</p>{:else}<p>d</p>{/if}');
   });
@@ -208,4 +214,21 @@ describe('render', () => {
   test('render expression', () => testHtmlPrinter('{@render (cool ? coolSnippet : lameSnippet)()}'));
 
   test('render optional', () => testHtmlPrinter('{@render children?.()}'));
+});
+
+describe('attribute values', () => {
+  test('text with expressions', () => {
+    testHtmlPrinter('<div class="a {b ? \'c\' : \'d\'} e"></div>');
+    testHtmlPrinter('<div style="width: {w}%"></div>');
+    testHtmlPrinter('<Input data-testid="row-{index + 1}"/>');
+  });
+
+  test('entities in text', () => {
+    testHtmlPrinter('<div title="a &quot;b&quot; {c}"></div>');
+    testHtmlPrinter('<div title="&amp; and &lt;"></div>');
+  });
+
+  test('function bindings', () => {
+    testHtmlPrinter('<Dialog bind:open={() => open, setOpen}/>');
+  });
 });
